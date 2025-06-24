@@ -1,4 +1,3 @@
-import SideBar from "../components/SideBar";
 import TextField from "@mui/material/TextField";
 import type { Snippet } from "../types/addSnippet";
 import { useEffect, useRef, useState } from "react";
@@ -104,136 +103,131 @@ const CreateSnippet = () => {
   };
 
   return (
-    <div ref={editorRef} className="flex h-screen">
-      <SideBar />
-      <main className="flex-1 p-6 bg-gray-100 overflow-y-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-semibold">Add Snippet</h2>
-        </div>
-        <form onSubmit={HandleSubmit}>
-          <TextField
-            id="title"
-            required
-            label="Title"
-            value={snippet.title}
-            onChange={(e) =>
-              setSnippet((prev) => ({ ...prev, title: e.target.value }))
-            }
-            variant="outlined"
-            size="small"
-            sx={{ width: "100%", marginBottom: "1.5rem" }}
-          />
+    <main ref={editorRef} className="flex-1 p-6 bg-gray-100 overflow-y-auto">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-semibold">Add Snippet</h2>
+      </div>
+      <form onSubmit={HandleSubmit}>
+        <TextField
+          id="title"
+          required
+          label="Title"
+          value={snippet.title}
+          onChange={(e) =>
+            setSnippet((prev) => ({ ...prev, title: e.target.value }))
+          }
+          variant="outlined"
+          size="small"
+          sx={{ width: "100%", marginBottom: "1.5rem" }}
+        />
 
-          <div className={`relative border rounded-lg shadow`}>
-            <div className="flex justify-between items-center pb-2.5 pt-3.5 px-5 bg-zinc-900 text-white rounded-t-lg">
-              <Box>
-                <Autocomplete
-                  value={
-                    languageOptions.find(
-                      (opt: LanguageType) => opt.value === snippet.language
-                    ) || null
-                  }
-                  onChange={(_, newValue: LanguageType | null) =>
-                    setSnippet((prev) => ({
-                      ...prev,
-                      language: newValue?.value || "",
-                    }))
-                  }
-                  options={languageOptions}
-                  getOptionLabel={(option: LanguageType) => option.label}
-                  sx={{
-                    width: 200,
-                    "& .MuiSvgIcon-root": {
-                      color: "#ccc",
-                    },
-                    // "& .MuiAutocomplete-inputRoot": {
-                    //   paddingTop: "2px !important",
-                    //   paddingBottom: "2px !important",
-                    // },
-                    "& .MuiOutlinedInput-root": {
-                      height: "32px", // sets fixed height
-                      minHeight: "32px",
-                      fontSize: "0.8rem",
-                    },
-                  }}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      required
-                      label="Language"
-                      InputLabelProps={{
-                        style: { color: "#ccc", backgroundColor: "#18181B" }, // Label color
-                      }}
-                      InputProps={{
-                        ...params.InputProps,
-                        style: {
-                          color: "#fff", // Input text
-                          backgroundColor: "transparent", // Background
+        <div className={`relative border rounded-lg shadow`}>
+          <div className="flex justify-between items-center pb-2.5 pt-3.5 px-5 bg-zinc-900 text-white rounded-t-lg">
+            <Box>
+              <Autocomplete
+                value={
+                  languageOptions.find(
+                    (opt: LanguageType) => opt.value === snippet.language
+                  ) || null
+                }
+                onChange={(_, newValue: LanguageType | null) =>
+                  setSnippet((prev) => ({
+                    ...prev,
+                    language: newValue?.value || "",
+                  }))
+                }
+                options={languageOptions}
+                getOptionLabel={(option: LanguageType) => option.label}
+                sx={{
+                  width: 200,
+                  "& .MuiSvgIcon-root": {
+                    color: "#ccc",
+                  },
+                  // "& .MuiAutocomplete-inputRoot": {
+                  //   paddingTop: "2px !important",
+                  //   paddingBottom: "2px !important",
+                  // },
+                  "& .MuiOutlinedInput-root": {
+                    height: "32px", // sets fixed height
+                    minHeight: "32px",
+                    fontSize: "0.8rem",
+                  },
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    required
+                    label="Language"
+                    InputLabelProps={{
+                      style: { color: "#ccc", backgroundColor: "#18181B" }, // Label color
+                    }}
+                    InputProps={{
+                      ...params.InputProps,
+                      style: {
+                        color: "#fff", // Input text
+                        backgroundColor: "transparent", // Background
+                      },
+                    }}
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        "& fieldset": {
+                          borderColor: "#555",
                         },
-                      }}
-                      sx={{
-                        "& .MuiOutlinedInput-root": {
-                          "& fieldset": {
-                            borderColor: "#555",
-                          },
-                          "&:hover fieldset": {
-                            borderColor: "#888",
-                          },
-                          "&.Mui-focused fieldset": {
-                            borderColor: "#00bcd4",
-                          },
+                        "&:hover fieldset": {
+                          borderColor: "#888",
                         },
-                      }}
-                    />
-                  )}
-                  size="small"
-                />
-              </Box>
-              <Box>
-                <button
-                  type="button"
-                  onClick={handleFormat}
-                  className="px-2 py-0.5 rounded cursor-pointer"
-                >
-                  <FormatAlignLeftIcon />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => copy(snippet.code)}
-                  className="px-2 py-0.5 rounded cursor-pointer"
-                >
-                  <ContentCopyIcon />
-                </button>
-                <button
-                  type="button"
-                  onClick={toggleFullscreen}
-                  className="px-2 py-0.5 rounded cursor-pointer"
-                >
-                  {isFullscreen ? <CloseFullscreenIcon /> : <OpenInFullIcon />}
-                </button>
-              </Box>
-            </div>
-            <CodeMirror
-              value={snippet.code}
-              height="350px"
-              theme={oneDark}
-              extensions={[
-                getExtension(snippet.language),
-                lintGutter(),
-                snippet.language === "javascript"
-                  ? eslintLinterExtension()
-                  : [],
-              ]}
-              onChange={handleCodeEditor}
-            />
+                        "&.Mui-focused fieldset": {
+                          borderColor: "#00bcd4",
+                        },
+                      },
+                    }}
+                  />
+                )}
+                size="small"
+              />
+            </Box>
+            <Box>
+              <button
+                type="button"
+                onClick={handleFormat}
+                className="px-2 py-0.5 rounded cursor-pointer"
+              >
+                <FormatAlignLeftIcon />
+              </button>
+              <button
+                type="button"
+                onClick={() => copy(snippet.code)}
+                className="px-2 py-0.5 rounded cursor-pointer"
+              >
+                <ContentCopyIcon />
+              </button>
+              <button
+                type="button"
+                onClick={toggleFullscreen}
+                className="px-2 py-0.5 rounded cursor-pointer"
+              >
+                {isFullscreen ? <CloseFullscreenIcon /> : <OpenInFullIcon />}
+              </button>
+            </Box>
           </div>
+          <CodeMirror
+            value={snippet.code}
+            height="350px"
+            theme={oneDark}
+            extensions={[
+              getExtension(snippet.language),
+              lintGutter(),
+              snippet.language === "javascript" ? eslintLinterExtension() : [],
+            ]}
+            onChange={handleCodeEditor}
+          />
+        </div>
 
-          <button className="mt-6 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
-            Save Snippet
-          </button>
-        </form>
-      </main>
-    </div>
+        <button className="mt-6 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+          Save Snippet
+        </button>
+      </form>
+    </main>
   );
 };
 
