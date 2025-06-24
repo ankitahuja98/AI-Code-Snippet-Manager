@@ -3,7 +3,7 @@ import "./App.css";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 import CreateSnippet from "./pages/CreateSnippet";
-import SideBar from "./components/SIdeBar";
+import SideBar from "./components/SideBar";
 import { useState } from "react";
 import TopBar from "./components/TopBar";
 
