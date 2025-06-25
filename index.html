@@ -8,6 +8,10 @@
   </head>
   <body>
     <div id="root"></div>
+    <!-- ✅ LocatorJS DEV mode flag -->
+    <script>
+      window.__LOCATOR_JS_ENABLED__ = import.meta.env.DEV;
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

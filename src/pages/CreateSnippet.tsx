@@ -103,7 +103,7 @@ const CreateSnippet = () => {
   };
 
   return (
-    <main ref={editorRef} className="flex-1 p-6 bg-gray-100 overflow-y-auto">
+    <main ref={editorRef} className="flex-1 p-6  overflow-y-auto">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-semibold">Add Snippet</h2>
       </div>

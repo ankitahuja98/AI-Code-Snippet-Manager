@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type RefObject } from "react";
 import type { Variants } from "framer-motion";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import AddBoxIcon from "@mui/icons-material/AddBox";
@@ -7,13 +7,21 @@ import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
 import MenuOpenIcon from "@mui/icons-material/MenuOpen";
 import MenuIcon from "@mui/icons-material/Menu";
 import { Link, useLocation } from "react-router-dom";
+import TooltipWrapper from "./TooltipWrapper";
+
+// 👇 Accept props
+interface TopBarProps {
+  editorRef: RefObject<HTMLDivElement> | null;
+}
 
 export default function SideBar({
   isOpen,
   setIsOpen,
+  editorRef,
 }: {
   isOpen: boolean;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  editorRef: RefObject<HTMLDivElement | null>;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const { height } = useDimensions(containerRef);
@@ -36,7 +44,11 @@ export default function SideBar({
         />
 
         <MenuToggle toggle={() => setIsOpen(!isOpen)} isOpen={isOpen} />
-        <Navigation isOpen={isOpen} currentPath={location.pathname} />
+        <Navigation
+          isOpen={isOpen}
+          currentPath={location.pathname}
+          editorRef={editorRef}
+        />
       </motion.nav>
     </div>
   );
@@ -51,9 +63,11 @@ const menuItems = [
 const Navigation = ({
   isOpen,
   currentPath,
+  editorRef,
 }: {
   isOpen: boolean;
   currentPath: string;
+  editorRef: RefObject<HTMLDivElement | null>;
 }) => (
   <ul style={list}>
     {menuItems.map((item) => (
@@ -64,6 +78,7 @@ const Navigation = ({
         icon={item.icon}
         isOpen={isOpen}
         currentPath={currentPath}
+        editorRef={editorRef}
       />
     ))}
   </ul>
@@ -76,6 +91,7 @@ const MenuItem = ({
   icon: Icon,
   isOpen,
   currentPath,
+  editorRef,
 }: {
   key: number;
   name: string;
@@ -83,6 +99,7 @@ const MenuItem = ({
   icon: React.ElementType;
   isOpen: boolean;
   currentPath: string;
+  editorRef: RefObject<HTMLDivElement | null>;
 }) => {
   const listItem: React.CSSProperties = {
     display: "flex",
@@ -100,22 +117,30 @@ const MenuItem = ({
       className={`block p-2 rounded flex align-middle `}
     >
       <li style={listItem} className={`p-1 rounded-lg`}>
-        <Icon style={iconPlaceholder} />
+        <TooltipWrapper
+          title={name}
+          arrow
+          PopperProps={{
+            container: editorRef.current,
+          }}
+        >
+          <Icon style={iconPlaceholder} />
 
-        {/* Animate label visibility */}
-        <AnimatePresence>
-          {isOpen && (
-            <motion.span
-              style={textLabel}
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -10 }}
-              transition={{ duration: 0.2 }}
-            >
-              {name}
-            </motion.span>
-          )}
-        </AnimatePresence>
+          {/* Animate label visibility */}
+          <AnimatePresence>
+            {isOpen && (
+              <motion.span
+                style={textLabel}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -10 }}
+                transition={{ duration: 0.2 }}
+              >
+                {name}
+              </motion.span>
+            )}
+          </AnimatePresence>
+        </TooltipWrapper>
       </li>
     </Link>
   );
