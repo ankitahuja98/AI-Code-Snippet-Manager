@@ -1,15 +1,15 @@
 type SnippetProps = {
-  id: number;
   title: string;
   summaryAndSuggestion: string;
   language: string;
+  optimisationRequired: boolean;
 };
 
 const SnippetCard = ({
-  id,
   title,
   summaryAndSuggestion,
   language,
+  optimisationRequired,
 }: SnippetProps) => {
   return (
     <div className="bg-white p-4 rounded shadow hover:shadow-md transition">
@@ -18,6 +18,7 @@ const SnippetCard = ({
       <span className="text-xs mt-2 inline-block bg-gray-200 text-gray-700 px-2 py-1 rounded">
         {language}
       </span>
+      <span>{optimisationRequired ? "🔴" : "🟢"}</span>
     </div>
   );
 };
