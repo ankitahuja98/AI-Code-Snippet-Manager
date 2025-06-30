@@ -31,7 +31,6 @@ const useStyle = {
   },
 };
 
-// Accept props
 interface TopBarProps {
   editorRef: RefObject<HTMLDivElement> | null;
 }
