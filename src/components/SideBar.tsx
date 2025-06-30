@@ -111,11 +111,7 @@ const MenuItem = ({
     width: "100%",
   };
   return (
-    <Link
-      key={key}
-      to={path}
-      className={`block p-2 rounded flex align-middle `}
-    >
+    <Link key={key} to={path} className="p-2 rounded flex align-middle">
       <li style={listItem} className={`p-1 rounded-lg`}>
         <TooltipWrapper
           title={name}

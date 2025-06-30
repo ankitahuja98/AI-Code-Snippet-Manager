@@ -15,7 +15,7 @@ function App() {
   return (
     <div className="flex h-screen" ref={editorRef}>
       <SideBar isOpen={isOpen} setIsOpen={setIsOpen} editorRef={editorRef} />
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col rounded-tl-3xl bg-white">
         <TopBar editorRef={editorRef} />
         <Routes>
           <Route path="/" element={<Dashboard />} />

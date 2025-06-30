@@ -7,19 +7,27 @@ import FullscreenExitIcon from "@mui/icons-material/FullscreenExit";
 import LogoutIcon from "@mui/icons-material/Logout";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { useEffect, useState, type RefObject } from "react";
+import TopBarLogo from "../images/TopBarLogo.png";
 import TooltipWrapper from "./TooltipWrapper";
 
 const useStyle = {
   barStyle: {
     backgroundColor: "#003f88",
-    height: "50px",
+    height: "60px",
     display: "flex",
     alignItems: "center",
+    borderRadius: "22px",
+    margin: "10px",
+    boxShadow: "rgb(45 45 45 / 85%) 1px 3px 5px",
   },
   iconStyle: {
     marginRight: "20px",
     cursor: "pointer",
-    fontSize: "21px",
+    fontSize: "25px",
+  },
+  logoStyle: {
+    height: "55px",
+    margin: "2px 2px 2px 25px",
   },
 };
 
@@ -60,6 +68,9 @@ const TopBar = ({
   }, []);
   return (
     <div style={useStyle.barStyle}>
+      <div>
+        <img src={TopBarLogo} alt="Logo" style={useStyle.logoStyle} />
+      </div>
       <div className="pr-10 text-white w-full">
         <div className="float-right flex items-center">
           <TooltipWrapper
@@ -78,12 +89,12 @@ const TopBar = ({
               container: editorRef.current,
             }}
           >
-            <button
-              type="button"
-              style={useStyle.iconStyle}
-              onClick={toggleFullscreen}
-            >
-              {isFullscreen ? <FullscreenExitIcon /> : <FullscreenIcon />}
+            <button type="button" onClick={toggleFullscreen}>
+              {isFullscreen ? (
+                <FullscreenExitIcon style={useStyle.iconStyle} />
+              ) : (
+                <FullscreenIcon style={useStyle.iconStyle} />
+              )}
             </button>
           </TooltipWrapper>
           <TooltipWrapper
