@@ -56,7 +56,7 @@ export default function SideBar({
 
 const menuItems = [
   { id: 0, name: "Dashboard", path: "/", icon: DashboardIcon },
-  { id: 1, name: "Create Snippet", path: "/create", icon: AddBoxIcon },
+  { id: 1, name: "Add Snippet", path: "/addSnippet", icon: AddBoxIcon },
   { id: 2, name: "Library", path: "/library", icon: LibraryBooksIcon },
 ];
 

@@ -9,6 +9,8 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import { useEffect, useState, type RefObject } from "react";
 import TopBarLogo from "../images/TopBarLogo.png";
 import TooltipWrapper from "./TooltipWrapper";
+import { useTheme } from "../Context/ThemeContext";
+import { Button } from "@mui/material";
 
 const useStyle = {
   barStyle: {
@@ -21,9 +23,9 @@ const useStyle = {
     boxShadow: "rgb(45 45 45 / 85%) 1px 3px 5px",
   },
   iconStyle: {
-    marginRight: "20px",
     cursor: "pointer",
     fontSize: "25px",
+    color: "white",
   },
   logoStyle: {
     height: "55px",
@@ -41,6 +43,8 @@ const TopBar = ({
   editorRef: RefObject<HTMLDivElement | null>;
 }) => {
   const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const { theme, toggleTheme } = useTheme();
 
   const toggleFullscreen = () => {
     if (!isFullscreen) {
@@ -79,7 +83,9 @@ const TopBar = ({
               container: editorRef.current,
             }}
           >
-            <NotificationsIcon style={useStyle.iconStyle} />
+            <Button>
+              <NotificationsIcon style={useStyle.iconStyle} />
+            </Button>
           </TooltipWrapper>
           <TooltipWrapper
             title={isFullscreen ? "Exit Full screen" : "Full screen"}
@@ -88,13 +94,13 @@ const TopBar = ({
               container: editorRef.current,
             }}
           >
-            <button type="button" onClick={toggleFullscreen}>
+            <Button type="button" onClick={toggleFullscreen}>
               {isFullscreen ? (
                 <FullscreenExitIcon style={useStyle.iconStyle} />
               ) : (
                 <FullscreenIcon style={useStyle.iconStyle} />
               )}
-            </button>
+            </Button>
           </TooltipWrapper>
           <TooltipWrapper
             title="Dark Mode"
@@ -103,7 +109,13 @@ const TopBar = ({
               container: editorRef.current,
             }}
           >
-            <DarkModeIcon style={useStyle.iconStyle} />
+            <Button onClick={toggleTheme}>
+              {theme === "light" ? (
+                <DarkModeIcon style={useStyle.iconStyle} />
+              ) : (
+                <LightModeIcon style={useStyle.iconStyle} />
+              )}
+            </Button>
           </TooltipWrapper>
           <TooltipWrapper
             title="Settings"
@@ -112,7 +124,9 @@ const TopBar = ({
               container: editorRef.current,
             }}
           >
-            <SettingsIcon style={useStyle.iconStyle} />
+            <Button>
+              <SettingsIcon style={useStyle.iconStyle} />
+            </Button>
           </TooltipWrapper>
           <TooltipWrapper
             title="Logout"
@@ -121,10 +135,12 @@ const TopBar = ({
               container: editorRef.current,
             }}
           >
-            <LogoutIcon
-              style={{ fontSize: "21px" }}
-              className="cursor-pointer"
-            />
+            <Button>
+              <LogoutIcon
+                style={{ fontSize: "21px", color: "white" }}
+                className="cursor-pointer"
+              />
+            </Button>
           </TooltipWrapper>
         </div>
       </div>
