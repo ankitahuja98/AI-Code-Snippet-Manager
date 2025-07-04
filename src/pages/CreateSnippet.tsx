@@ -152,11 +152,11 @@ const CreateSnippet = () => {
     }
   };
 
-  // const handleSaveSnippet = () => {
-  //   const saved = JSON.parse(localStorage.getItem("snippets") || "[]");
-  //   saved.push(snippet);
-  //   localStorage.setItem("snippets", JSON.stringify(saved));
-  // };
+  const handleSaveSnippet = () => {
+    const saved = JSON.parse(localStorage.getItem("snippets") || "[]");
+    saved.push(snippet);
+    localStorage.setItem("snippets", JSON.stringify(saved));
+  };
 
   console.log("snippet", snippet);
 
