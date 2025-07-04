@@ -9,11 +9,6 @@ import MenuIcon from "@mui/icons-material/Menu";
 import { Link, useLocation } from "react-router-dom";
 import TooltipWrapper from "./TooltipWrapper";
 
-// 👇 Accept props
-interface TopBarProps {
-  editorRef: RefObject<HTMLDivElement> | null;
-}
-
 export default function SideBar({
   isOpen,
   setIsOpen,
@@ -162,16 +157,6 @@ const sidebarVariants: Variants = {
   },
 };
 
-const Path = (props: any) => (
-  <motion.path
-    fill="transparent"
-    strokeWidth="3"
-    stroke="#FFFFFF"
-    strokeLinecap="round"
-    {...props}
-  />
-);
-
 interface MenuToggleProps {
   toggle: () => void;
   isOpen: boolean;
@@ -205,23 +190,6 @@ const nav: React.CSSProperties = {
   color: "white",
   boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
   overflow: "hidden",
-};
-
-const toggleContainer: React.CSSProperties = {
-  outline: "none",
-  border: "none",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  userSelect: "none",
-  cursor: "pointer",
-  position: "absolute",
-  top: 4,
-  left: 5,
-  width: 50,
-  height: 50,
-  borderRadius: "50%",
-  zIndex: 10,
 };
 
 const list: React.CSSProperties = {
