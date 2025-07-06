@@ -26,6 +26,10 @@ import { v4 as uuidv4 } from "uuid";
 import OptimiseCodeSwitch from "../utils/OptimiseCodeSwitch";
 import LoadingSpinner from "../utils/LoadingSpinner";
 import { showToast } from "../utils/Toast";
+import AutocompleteTags, {
+  type TagOptionType,
+} from "../components/AutocompleteTags";
+import { Typography } from "@mui/material";
 
 const CreateSnippet = () => {
   const UniqueId = uuidv4();
@@ -40,6 +44,7 @@ const CreateSnippet = () => {
     tags: [],
     optimisationRequired: false,
   });
+  const [AllTags, setAllTags] = useState<TagOptionType[]>([]);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showAIFields, setShowAIFields] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -50,6 +55,12 @@ const CreateSnippet = () => {
       [field]: value,
     }));
   };
+
+  useEffect(() => {
+    if (AllTags.length > 0) {
+      setSnippet((prev) => ({ ...prev, tags: AllTags }));
+    }
+  }, [AllTags]);
 
   const editorRef = useRef<HTMLDivElement>(null);
 
@@ -137,10 +148,12 @@ const CreateSnippet = () => {
 
       showToast("AI Response Generated!", "success");
 
+      setAllTags(data.tags);
+
       setSnippet((prev) => ({
         ...prev,
         AIInsights: data.AIInsights,
-        tags: data.tags,
+        // tags: data.tags,
         optimiseCode: data.optimiseCode,
         optimisationRequired: data.optimisationRequired,
       }));
@@ -163,7 +176,7 @@ const CreateSnippet = () => {
   return (
     <>
       {loading && <LoadingSpinner />}
-      <main ref={editorRef} className="flex-1 p-6 pt-3  overflow-y-auto">
+      <main className="flex-1 p-6 pt-3  overflow-y-auto">
         <div className="flex justify-between items-center mb-5">
           <h2 className="text-2xl font-semibold">Add Snippet</h2>
         </div>
@@ -180,7 +193,7 @@ const CreateSnippet = () => {
           sx={{ width: "100%", marginBottom: "1.5rem" }}
         />
 
-        <div className={`relative border rounded-lg shadow`}>
+        <div ref={editorRef} className={`relative border rounded-lg shadow`}>
           <div className="flex justify-between items-center pb-2.5 pt-3.5 px-5 bg-zinc-900 text-white rounded-t-lg">
             <Box>
               <Autocomplete
@@ -271,7 +284,7 @@ const CreateSnippet = () => {
           </div>
           <CodeMirror
             value={snippet.code}
-            height="350px"
+            height={isFullscreen ? "100vh" : "350px"}
             theme={oneDark}
             extensions={[
               getExtension(snippet.language),
@@ -284,7 +297,7 @@ const CreateSnippet = () => {
 
         {showAIFields && (
           <>
-            <Box sx={{ width: "100%", margin: "1.5rem 0rem" }}>
+            <Box sx={{ width: "100%", margin: "1.5rem 0rem", display: "flex" }}>
               <OptimiseCodeSwitch
                 checked={snippet.optimisationRequired}
                 onChange={(e) =>
@@ -292,16 +305,12 @@ const CreateSnippet = () => {
                 }
               />
               <span style={{ marginLeft: "5rem" }}>
-                <label style={{ marginRight: "0.5rem" }}>Tags:</label>
-                <input
-                  value={snippet.tags.join(", ")}
-                  onChange={(e) =>
-                    updateSnippet(
-                      "tags",
-                      e.target.value.split(",").map((tag) => tag.trim())
-                    )
+                <AutocompleteTags
+                  value={snippet.tags}
+                  options={AllTags}
+                  onChange={(newTags) =>
+                    setSnippet({ ...snippet, tags: newTags })
                   }
-                  style={{ border: "2px solid black" }}
                 />
               </span>
             </Box>
@@ -316,19 +325,52 @@ const CreateSnippet = () => {
               placeholder="AI-generated summary and suggestions will appear here…"
               sx={{ width: "100%", marginBottom: "1.5rem" }}
             />
-            <CodeMirror
-              value={snippet.optimiseCode}
-              height="350px"
-              theme={oneDark}
-              extensions={[
-                getExtension(snippet.language),
-                lintGutter(),
-                snippet.language === "javascript"
-                  ? eslintLinterExtension()
-                  : [],
-              ]}
-              onChange={(value) => updateSnippet("optimiseCode", value)}
-            />
+
+            <div className={`relative border rounded-lg shadow`}>
+              <div className="flex justify-between items-center pb-2.5 pt-3.5 px-5 bg-zinc-900 text-white rounded-t-lg">
+                <Typography>Optimised Code</Typography>
+                <Box>
+                  <button
+                    type="button"
+                    onClick={handleFormat}
+                    className="px-2 py-0.5 rounded cursor-pointer"
+                  >
+                    <FormatAlignLeftIcon />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => copy(snippet.code)}
+                    className="px-2 py-0.5 rounded cursor-pointer"
+                  >
+                    <ContentCopyIcon />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={toggleFullscreen}
+                    className="px-2 py-0.5 rounded cursor-pointer"
+                  >
+                    {isFullscreen ? (
+                      <CloseFullscreenIcon />
+                    ) : (
+                      <OpenInFullIcon />
+                    )}
+                  </button>
+                </Box>
+              </div>
+              <CodeMirror
+                value={snippet.optimiseCode}
+                height="350px"
+                theme={oneDark}
+                extensions={[
+                  getExtension(snippet.language),
+                  lintGutter(),
+                  snippet.language === "javascript"
+                    ? eslintLinterExtension()
+                    : [],
+                ]}
+                onChange={(value) => updateSnippet("optimiseCode", value)}
+              />
+            </div>
           </>
         )}
 
@@ -337,19 +379,23 @@ const CreateSnippet = () => {
             type="button"
             variant="contained"
             onClick={handleAIEnhancement}
-            className="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            className="mt-4 px-6 py-2 rounded-xl text-white font-semibold bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:from-blue-600 hover:via-blue-700 hover:to-blue-800 shadow-lg hover:shadow-xl transition duration-300 relative overflow-hidden"
             sx={{ margin: "0rem 2rem 0rem 0rem" }}
           >
-            {!showAIFields ? "✨ Enhance with AI" : "✨ Regenerate with AI"}
+            <span className="relative z-10">
+              {!showAIFields ? "✨ Enhance with AI" : "✨ Regenerate with AI"}
+            </span>
+            <span className="absolute inset-0 bg-white opacity-10 rounded-xl pointer-events-none"></span>
           </Button>
           {showAIFields && (
             <Button
+              type="button"
               variant="contained"
               color="success"
-              type="button"
-              className="mt-4 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+              className="mt-4 px-6 py-2 rounded-xl text-white font-semibold bg-gradient-to-r from-green-500 via-green-600 to-green-700 hover:from-green-600 hover:via-green-700 hover:to-green-800 shadow-lg hover:shadow-xl transition duration-300 relative overflow-hidden"
             >
-              Save
+              <span className="relative z-10">Save</span>
+              <span className="absolute inset-0 bg-white opacity-10 rounded-xl pointer-events-none"></span>
             </Button>
           )}
         </Box>

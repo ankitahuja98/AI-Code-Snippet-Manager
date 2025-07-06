@@ -1,3 +1,8 @@
+interface Tag {
+  id: number;
+  name: string;
+}
+
 export type Snippet = {
   id: number | string;
   title: string;
@@ -5,6 +10,6 @@ export type Snippet = {
   code: string;
   AIInsights: string;
   optimiseCode: string;
-  tags: string[];
+  tags: Tag[];
   optimisationRequired: boolean;
 };
