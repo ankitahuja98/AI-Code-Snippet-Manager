@@ -3,9 +3,10 @@ import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import { styled } from "@mui/material/styles";
 import { autocompleteClasses } from "@mui/material/Autocomplete";
+import { useTheme } from "../Context/ThemeContext";
 
-const Root = styled("div")(({ theme }) => ({
-  color: "rgba(0,0,0,0.85)",
+const Root = styled("div")<{ themeMode: string }>(({ themeMode }) => ({
+  color: themeMode === "dark" ? "#eee" : "rgba(0,0,0,0.85)",
   fontSize: "14px",
 }));
 
@@ -17,10 +18,10 @@ const Label = styled("label")`
   font-weight: 600;
 `;
 
-const InputWrapper = styled("div")(({ theme }) => ({
+const InputWrapper = styled("div")<{ themeMode: string }>(({ themeMode }) => ({
   width: "350px",
-  border: "1px solid #d9d9d9",
-  backgroundColor: "#fff",
+  border: `1px solid ${themeMode === "dark" ? "#555" : "#d9d9d9"}`,
+  backgroundColor: themeMode === "dark" ? "#1e1e1e" : "#fff",
   borderRadius: "4px",
   padding: "1px",
   display: "flex",
@@ -33,8 +34,8 @@ const InputWrapper = styled("div")(({ theme }) => ({
     boxShadow: "0 0 0 2px rgb(24 144 255 / 0.2)",
   },
   "& input": {
-    backgroundColor: "#fff",
-    color: "rgba(0,0,0,.85)",
+    backgroundColor: themeMode === "dark" ? "#1e1e1e" : "#fff",
+    color: themeMode === "dark" ? "#fff" : "rgba(0,0,0,.85)",
     height: "30px",
     padding: "4px 6px",
     width: "0",
@@ -147,6 +148,8 @@ export default function AutocompleteTags({
   onChange,
   options,
 }: AutocompleteTagsProps) {
+  const { theme, toggleTheme } = useTheme();
+
   const {
     getRootProps,
     getInputLabelProps,
@@ -173,12 +176,9 @@ export default function AutocompleteTags({
     },
   });
 
-  console.log("value", value);
-  console.log("options", options);
-
   return (
     <div style={{ position: "relative" }}>
-      <Root>
+      <Root themeMode={theme}>
         <div
           {...getRootProps()}
           style={{
@@ -190,7 +190,11 @@ export default function AutocompleteTags({
           <Label {...getInputLabelProps()} style={{ marginRight: "10px" }}>
             Tags:
           </Label>
-          <InputWrapper ref={setAnchorEl} className={focused ? "focused" : ""}>
+          <InputWrapper
+            ref={setAnchorEl}
+            themeMode={theme}
+            className={focused ? "focused" : ""}
+          >
             {value.map((option, index) => {
               const tagProps = getTagProps({ index });
               const bgColor = getColorForTag(option); // 🔥 assign color
