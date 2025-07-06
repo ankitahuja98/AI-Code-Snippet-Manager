@@ -133,15 +133,18 @@ const CreateSnippet = () => {
     console.log("aagya");
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:5000/api/gemini", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: snippet.title,
-          language: snippet.language,
-          code: snippet.code,
-        }),
-      });
+      const res = await fetch(
+        "https://ai-code-snippet-manager-server.onrender.com/api/gemini",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: snippet.title,
+            language: snippet.language,
+            code: snippet.code,
+          }),
+        }
+      );
       const data = await res.json();
 
       console.log("AI RESPONSE", data);
