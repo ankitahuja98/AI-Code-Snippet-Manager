@@ -3,6 +3,7 @@ import type { Snippet } from "../types/addSnippet";
 import { useEffect, useRef, useState } from "react";
 import CodeMirror from "@uiw/react-codemirror";
 import { oneDark } from "@codemirror/theme-one-dark";
+import { githubLight } from "@uiw/codemirror-theme-github";
 import { getExtension } from "../utils/languageExtensions";
 import FormatAlignLeftIcon from "@mui/icons-material/FormatAlignLeft";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
@@ -30,9 +31,11 @@ import AutocompleteTags, {
   type TagOptionType,
 } from "../components/AutocompleteTags";
 import { Typography } from "@mui/material";
+import { useTheme } from "../Context/ThemeContext";
 
 const CreateSnippet = () => {
   const UniqueId = uuidv4();
+  const { theme } = useTheme();
 
   const [snippet, setSnippet] = useState<Snippet>({
     id: UniqueId,
@@ -45,9 +48,12 @@ const CreateSnippet = () => {
     optimisationRequired: false,
   });
   const [AllTags, setAllTags] = useState<TagOptionType[]>([]);
-  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isUserCodeFullscreen, setisUserCodeFullscreen] = useState(false);
+  const [isOptimiseCodeFullscreen, setisOptimiseCodeFullscreen] =
+    useState(false);
   const [showAIFields, setShowAIFields] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [validInput, setValidInput] = useState(false);
 
   const updateSnippet = (field: keyof Snippet, value: any) => {
     setSnippet((prev) => ({
@@ -57,12 +63,17 @@ const CreateSnippet = () => {
   };
 
   useEffect(() => {
-    if (AllTags.length > 0) {
+    if (AllTags?.length > 0) {
       setSnippet((prev) => ({ ...prev, tags: AllTags }));
     }
   }, [AllTags]);
 
-  const editorRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    setValidInput(Boolean(snippet.title && snippet.language && snippet.code));
+  }, [snippet]);
+
+  const userCodeFullScreenRef = useRef<HTMLDivElement>(null);
+  const optimiseCodeFullScreenRef = useRef<HTMLDivElement>(null);
 
   const languageToParser: any = {
     javascript: { parser: "babel", plugins: [parserBabel, parserEstree] },
@@ -104,21 +115,38 @@ const CreateSnippet = () => {
     setSnippet((prev) => ({ ...prev, code: value }));
   };
 
-  const toggleFullscreen = () => {
-    if (!isFullscreen) {
-      if (editorRef.current?.requestFullscreen) {
-        editorRef.current.requestFullscreen();
+  const toggleFullscreen = (value: string) => {
+    if (value === "userCode") {
+      if (!isUserCodeFullscreen) {
+        if (userCodeFullScreenRef.current?.requestFullscreen) {
+          userCodeFullScreenRef.current.requestFullscreen();
+        }
+      } else {
+        if (document.fullscreenElement) {
+          document.exitFullscreen();
+        }
       }
-    } else {
-      if (document.fullscreenElement) {
-        document.exitFullscreen();
+    } else if (value === "optimiseCode") {
+      if (!isOptimiseCodeFullscreen) {
+        if (optimiseCodeFullScreenRef.current?.requestFullscreen) {
+          optimiseCodeFullScreenRef.current.requestFullscreen();
+        }
+      } else {
+        if (document.fullscreenElement) {
+          document.exitFullscreen();
+        }
       }
     }
   };
 
   useEffect(() => {
     const handleFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement);
+      const fullscreenEl = document.fullscreenElement;
+
+      setisUserCodeFullscreen(fullscreenEl === userCodeFullScreenRef.current);
+      setisOptimiseCodeFullscreen(
+        fullscreenEl === optimiseCodeFullScreenRef.current
+      );
     };
 
     document.addEventListener("fullscreenchange", handleFullscreenChange);
@@ -130,7 +158,6 @@ const CreateSnippet = () => {
 
   // Call GEMINI API
   const handleAIEnhancement = async () => {
-    console.log("aagya");
     setLoading(true);
     try {
       const res = await fetch(
@@ -147,7 +174,7 @@ const CreateSnippet = () => {
       );
       const data = await res.json();
 
-      console.log("AI RESPONSE", data);
+      // console.log("AI RESPONSE", data);
 
       showToast("AI Response Generated!", "success");
 
@@ -161,18 +188,25 @@ const CreateSnippet = () => {
         optimisationRequired: data.optimisationRequired,
       }));
       setShowAIFields(true);
-    } catch (err) {
-      console.error("AI Error:", err);
+    } catch (err: any) {
+      const errorMessage =
+        err?.response?.data?.error || err?.message || "Something went wrong.";
+      showToast(errorMessage, "error");
     } finally {
       setLoading(false);
     }
   };
 
-  // const handleSaveSnippet = () => {
-  //   const saved = JSON.parse(localStorage.getItem("snippets") || "[]");
-  //   saved.push(snippet);
-  //   localStorage.setItem("snippets", JSON.stringify(saved));
-  // };
+  const handleSaveSnippet = () => {
+    try {
+      const saved = JSON.parse(localStorage.getItem("snippets") || "[]");
+      saved.push(snippet);
+      localStorage.setItem("snippets", JSON.stringify(saved));
+      showToast("Code snippet is saved!", "success");
+    } catch (error) {
+      showToast("Code snippet is saved!", "success");
+    }
+  };
 
   console.log("snippet", snippet);
 
@@ -196,7 +230,10 @@ const CreateSnippet = () => {
           sx={{ width: "100%", marginBottom: "1.5rem" }}
         />
 
-        <div ref={editorRef} className={`relative border rounded-lg shadow`}>
+        <div
+          ref={userCodeFullScreenRef}
+          className={`relative border rounded-lg shadow`}
+        >
           <div className="flex justify-between items-center pb-2.5 pt-3.5 px-5 bg-zinc-900 text-white rounded-t-lg">
             <Box>
               <Autocomplete
@@ -278,17 +315,21 @@ const CreateSnippet = () => {
               </button>
               <button
                 type="button"
-                onClick={toggleFullscreen}
+                onClick={() => toggleFullscreen("userCode")}
                 className="px-2 py-0.5 rounded cursor-pointer"
               >
-                {isFullscreen ? <CloseFullscreenIcon /> : <OpenInFullIcon />}
+                {isUserCodeFullscreen ? (
+                  <CloseFullscreenIcon />
+                ) : (
+                  <OpenInFullIcon />
+                )}
               </button>
             </Box>
           </div>
           <CodeMirror
             value={snippet.code}
-            height={isFullscreen ? "100vh" : "350px"}
-            theme={oneDark}
+            height={isUserCodeFullscreen ? "100vh" : "350px"}
+            theme={theme === "dark" ? oneDark : githubLight}
             extensions={[
               getExtension(snippet.language),
               lintGutter(),
@@ -329,7 +370,10 @@ const CreateSnippet = () => {
               sx={{ width: "100%", marginBottom: "1.5rem" }}
             />
 
-            <div className={`relative border rounded-lg shadow`}>
+            <div
+              ref={optimiseCodeFullScreenRef}
+              className={`relative border rounded-lg shadow`}
+            >
               <div className="flex justify-between items-center pb-2.5 pt-3.5 px-5 bg-zinc-900 text-white rounded-t-lg">
                 <Typography>Optimised Code</Typography>
                 <Box>
@@ -349,10 +393,10 @@ const CreateSnippet = () => {
                   </button>
                   <button
                     type="button"
-                    onClick={toggleFullscreen}
+                    onClick={() => toggleFullscreen("optimiseCode")}
                     className="px-2 py-0.5 rounded cursor-pointer"
                   >
-                    {isFullscreen ? (
+                    {isOptimiseCodeFullscreen ? (
                       <CloseFullscreenIcon />
                     ) : (
                       <OpenInFullIcon />
@@ -362,8 +406,8 @@ const CreateSnippet = () => {
               </div>
               <CodeMirror
                 value={snippet.optimiseCode}
-                height="350px"
-                theme={oneDark}
+                height={isOptimiseCodeFullscreen ? "100vh" : "350px"}
+                theme={theme === "dark" ? oneDark : githubLight}
                 extensions={[
                   getExtension(snippet.language),
                   lintGutter(),
@@ -381,11 +425,14 @@ const CreateSnippet = () => {
           <Button
             type="button"
             variant="contained"
+            disabled={!validInput}
             onClick={handleAIEnhancement}
-            className="mt-4 px-6 py-2 rounded-xl text-white font-semibold bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:from-blue-600 hover:via-blue-700 hover:to-blue-800 shadow-lg hover:shadow-xl transition duration-300 relative overflow-hidden"
+            className="mt-4 px-6 py-2 rounded-xl font-semibold bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:from-blue-600 hover:via-blue-700 hover:to-blue-800 shadow-lg hover:shadow-xl transition duration-300 relative overflow-hidden"
             sx={{ margin: "0rem 2rem 0rem 0rem" }}
           >
-            <span className="relative z-10">
+            <span
+              className={`relative z-10 ${!validInput ? "text-gray-300 " : "text-white font-bold "}`}
+            >
               {!showAIFields ? "✨ Enhance with AI" : "✨ Regenerate with AI"}
             </span>
             <span className="absolute inset-0 bg-white opacity-10 rounded-xl pointer-events-none"></span>
@@ -395,9 +442,14 @@ const CreateSnippet = () => {
               type="button"
               variant="contained"
               color="success"
+              onClick={handleSaveSnippet}
               className="mt-4 px-6 py-2 rounded-xl text-white font-semibold bg-gradient-to-r from-green-500 via-green-600 to-green-700 hover:from-green-600 hover:via-green-700 hover:to-green-800 shadow-lg hover:shadow-xl transition duration-300 relative overflow-hidden"
             >
-              <span className="relative z-10">Save</span>
+              <span
+                className={`relative z-10 ${!validInput ? "text-gray-300 " : "text-white font-bold "}`}
+              >
+                Save
+              </span>
               <span className="absolute inset-0 bg-white opacity-10 rounded-xl pointer-events-none"></span>
             </Button>
           )}
