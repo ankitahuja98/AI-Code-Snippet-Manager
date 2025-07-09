@@ -48,12 +48,20 @@ const InputWrapper = styled("div")<{ themeMode: string }>(({ themeMode }) => ({
 }));
 
 const tagColors = [
-  "#e0f7fa",
-  "#fce4ec",
-  "#e8eaf6",
-  "#f3e5f5",
-  "#fff3e0",
-  "#e8f5e9",
+  "#e0f7fa", // light cyan
+  "#fce4ec", // pink
+  "#e8eaf6", // indigo light
+  "#f3e5f5", // lavender
+  "#fff3e0", // orange pastel
+  "#e8f5e9", // green pastel
+  "#f0f4c3", // light lime
+  "#f1f8e9", // mint
+  "#f9fbe7", // lemon
+  "#ede7f6", // soft purple
+  "#e3f2fd", // light blue
+  "#fbe9e7", // coral tint
+  "#f9fbe7", // creamy yellow
+  "#edeef0", // very soft gray
 ];
 
 const getColorForTag = (tag: TagOptionType) => {

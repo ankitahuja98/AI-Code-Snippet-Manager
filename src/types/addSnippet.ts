@@ -8,6 +8,7 @@ export type Snippet = {
   title: string;
   language: string;
   code: string;
+  dateCreated: string;
   AIInsights: string;
   optimiseCode: string;
   tags: Tag[];

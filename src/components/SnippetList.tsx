@@ -6,14 +6,58 @@ import { TiPin } from "react-icons/ti";
 import type { TagOptionType } from "./AutocompleteTags";
 import { capitalize, styled } from "@mui/material";
 
-const SnippetList = () => {
+type searchInpt = {
+  searchInput: string;
+};
+
+const SnippetList = ({ searchInput }: searchInpt) => {
   const [AllSnippets, setAllSnippets] = useState<Snippet[]>([]);
+  const [allData, setAllData] = useState<Snippet[]>([]);
 
   useEffect(() => {
-    setAllSnippets(JSON.parse(localStorage.getItem("snippets") || "[]"));
+    const allRaw = JSON.parse(
+      localStorage.getItem("snippets") || "[]"
+    ) as Snippet[];
+
+    setAllData(
+      Array.from(
+        new Map(allRaw.map((item: Snippet) => [item.id, item])).values()
+      )
+    );
   }, []);
 
-  const handleDelete = (id: number | string) => {};
+  useEffect(() => {
+    if (!searchInput) {
+      setAllSnippets(allData);
+    } else {
+      const SearchLowerInput = searchInput.toLowerCase();
+
+      let filterData = allData.filter((val) => {
+        const { title, language, AIInsights, tags } = val;
+
+        const tagMatches = tags.some((val) =>
+          val.name.toLowerCase().includes(SearchLowerInput)
+        );
+
+        return (
+          title.toLowerCase().includes(SearchLowerInput) ||
+          language.toLowerCase().includes(SearchLowerInput) ||
+          AIInsights.toLowerCase().includes(SearchLowerInput) ||
+          tagMatches
+        );
+      });
+
+      setAllSnippets(filterData);
+    }
+  }, [searchInput, allData]);
+
+  const handleDelete = (id: number | string) => {
+    let filterData = allData.filter((val) => {
+      return val.id !== id;
+    });
+    setAllData(filterData);
+    localStorage.setItem("snippets", JSON.stringify(filterData));
+  };
 
   const handleEdit = (id: number | string) => {};
 
@@ -53,12 +97,20 @@ const SnippetList = () => {
   }));
 
   const tagColors = [
-    "#e0f7fa",
-    "#fce4ec",
-    "#e8eaf6",
-    "#f3e5f5",
-    "#fff3e0",
-    "#e8f5e9",
+    "#e0f7fa", // light cyan
+    "#fce4ec", // pink
+    "#e8eaf6", // indigo light
+    "#f3e5f5", // lavender
+    "#fff3e0", // orange pastel
+    "#e8f5e9", // green pastel
+    "#f0f4c3", // light lime
+    "#f1f8e9", // mint
+    "#f9fbe7", // lemon
+    "#ede7f6", // soft purple
+    "#e3f2fd", // light blue
+    "#fbe9e7", // coral tint
+    "#f9fbe7", // creamy yellow
+    "#edeef0", // very soft gray
   ];
 
   const getColorForTag = (tag: TagOptionType) => {
@@ -66,75 +118,71 @@ const SnippetList = () => {
     return tagColors[index];
   };
 
+  const useStyle = {
+    TableHeader:
+      "px-4 py-2 text-left text-md font-bold text-gray-700 border border-gray-200",
+
+    tableBody: "px-2.5 py-2.5 text-sm text-gray-800 border border-gray-200",
+  };
+
   return (
     <div className="overflow-x-auto border border-gray-200">
       <table className="min-w-full border border-gray-200 rounded-md shadow-sm overflow-hidden">
         <thead className="bg-gray-100">
           <tr>
-            <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700 border border-gray-200">
-              Title
-            </th>
-            <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700 border border-gray-200">
-              Language
-            </th>
-            <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700 border border-gray-200">
-              AI Insights
-            </th>
-            <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700 border border-gray-200">
-              Tags
-            </th>
-            <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700 border border-gray-200">
-              Optimisation Required
-            </th>
-            <th className="px-4 py-2 text-sm font-semibold text-gray-700 border border-gray-200 text-center">
-              Actions
-            </th>
+            <th className={`${useStyle.TableHeader} w-[10%]`}>Title</th>
+            <th className={`${useStyle.TableHeader} w-[10%]`}>Language</th>
+            <th className={`${useStyle.TableHeader} w-[40%]`}>AI Insights</th>
+            <th className={`${useStyle.TableHeader} w-[15%]`}>Tags</th>
+            <th className={`${useStyle.TableHeader} w-[3%]`}>Optimised</th>
+            <th className={`${useStyle.TableHeader} w-[12%]`}>Created On</th>
+            <th className={`${useStyle.TableHeader} w-[10%]`}>Actions</th>
           </tr>
         </thead>
         <tbody className="bg-white">
           {AllSnippets.map((snippet) => (
             <tr key={snippet.id} className="hover:bg-gray-50 transition-colors">
-              <td className="px-2 py-1 text-sm text-gray-800 border border-gray-200">
-                {snippet.title}
-              </td>
-              <td className="px-2 py-1text-sm text-gray-800 border border-gray-200">
+              <td className={useStyle.tableBody}>{snippet.title}</td>
+              <td className={useStyle.tableBody}>
                 {capitalise(snippet.language)}
               </td>
-              <td className="px-2 py-1 text-sm text-gray-800 border border-gray-200">
+              <td className={useStyle.tableBody}>
                 <div className="line-clamp-2">{snippet.AIInsights}</div>
               </td>
-              <td
-                className="px-2 py-1 flex items-center text-sm text-gray-800 border border-gray-200"
-                style={{ minHeight: "6rem", maxHeight: "8rem" }}
-              >
-                {snippet.tags.map((tag: any) => {
-                  const bgColor = getColorForTag(tag); // 🔥 assign color
-                  return (
-                    <StyledTag key={tag.id} bgcolor={bgColor}>
-                      <span key={tag.id}>{capitalize(tag.name)}</span>
-                    </StyledTag>
-                  );
-                })}
+              <td className={useStyle.tableBody}>
+                <div className="flex flex-wrap gap-1 overflow-hidden">
+                  {snippet.tags.map((tag: any) => {
+                    const bgColor = getColorForTag(tag);
+                    return (
+                      <StyledTag key={tag.id} bgcolor={bgColor}>
+                        <span key={tag.id}>{capitalize(tag.name)}</span>
+                      </StyledTag>
+                    );
+                  })}
+                </div>
               </td>
-              <td className="px-2 py-1 text-center text-sm text-gray-800 border border-gray-200">
-                {snippet.optimisationRequired ? "Yes" : "No"}
+              <td className={`${useStyle.tableBody} text-center`}>
+                {snippet.optimisationRequired ? "No" : "Yes"}
+              </td>
+              <td className={`${useStyle.tableBody} text-center`}>
+                {snippet.dateCreated}
               </td>
               <td className="px-1 text-sm text-center border border-gray-200">
                 <button
                   onClick={() => handleEdit(snippet.id)}
-                  className=" text-yellow-800 px-1 rounded text-base"
+                  className=" text-yellow-800 px-1.5 rounded text-lg cursor-pointer"
                 >
                   <FaEdit />
                 </button>
                 <button
                   onClick={() => handleDelete(snippet.id)}
-                  className=" text-red-800 px-1 rounded text-base"
+                  className=" text-red-800 px-1.5 rounded text-lg cursor-pointer"
                 >
                   <MdDelete />
                 </button>
                 <button
                   onClick={() => handlePin(snippet.id)}
-                  className=" text-green-800 px-1 rounded text-base"
+                  className=" text-green-800 px-1.5 rounded text-lg cursor-pointer"
                 >
                   <TiPin />
                 </button>

@@ -32,6 +32,8 @@ import AutocompleteTags, {
 } from "../components/AutocompleteTags";
 import { Typography } from "@mui/material";
 import { useTheme } from "../Context/ThemeContext";
+import { getFormattedDate } from "../utils/getFormattedDate";
+import { useNavigate } from "react-router-dom";
 
 const CreateSnippet = () => {
   const UniqueId = uuidv4();
@@ -42,11 +44,13 @@ const CreateSnippet = () => {
     title: "",
     language: "javascript",
     code: "",
+    dateCreated: getFormattedDate(),
     AIInsights: "",
     optimiseCode: "",
     tags: [],
     optimisationRequired: false,
   });
+
   const [AllTags, setAllTags] = useState<TagOptionType[]>([]);
   const [isUserCodeFullscreen, setisUserCodeFullscreen] = useState(false);
   const [isOptimiseCodeFullscreen, setisOptimiseCodeFullscreen] =
@@ -54,6 +58,8 @@ const CreateSnippet = () => {
   const [showAIFields, setShowAIFields] = useState(false);
   const [loading, setLoading] = useState(false);
   const [validInput, setValidInput] = useState(false);
+
+  const navigate = useNavigate();
 
   const updateSnippet = (field: keyof Snippet, value: any) => {
     setSnippet((prev) => ({
@@ -447,6 +453,7 @@ const CreateSnippet = () => {
             >
               <span
                 className={`relative z-10 ${!validInput ? "text-gray-300 " : "text-white font-bold "}`}
+                onClick={() => navigate("/")}
               >
                 Save
               </span>
