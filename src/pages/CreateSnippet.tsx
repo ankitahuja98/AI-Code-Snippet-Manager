@@ -214,8 +214,6 @@ const CreateSnippet = () => {
     }
   };
 
-  console.log("snippet", snippet);
-
   return (
     <>
       {loading && <LoadingSpinner />}

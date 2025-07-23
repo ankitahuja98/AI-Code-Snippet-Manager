@@ -43,7 +43,7 @@ const Library = () => {
           className="mt-4 px-6 py-2 rounded-xl text-white bg-gradient-to-r from-[#003F88] via-[#602080] to-[#9D4EDD] hover:brightness-110 shadow-lg hover:shadow-xl transition duration-300 relative overflow-hidden"
         >
           <span
-            className="font-bold flex items-center"
+            className="font-bold flex items-center text-xs sm:text-sm"
             onClick={() => navigate("/addSnippet")}
           >
             <IoMdAddCircle className="pr-2 text-2xl" /> New Snippet

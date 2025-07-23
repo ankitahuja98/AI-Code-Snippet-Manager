@@ -2,9 +2,12 @@ import { useEffect, useState } from "react";
 import type { Snippet } from "../types/addSnippet";
 import { FaEdit } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
-import { TiPin } from "react-icons/ti";
+// import { TiPin } from "react-icons/ti";
+import { CiStar } from "react-icons/ci";
+
 import type { TagOptionType } from "./AutocompleteTags";
 import { capitalize, styled } from "@mui/material";
+import TooltipWrapper from "./TooltipWrapper";
 
 type searchInpt = {
   searchInput: string;
@@ -168,24 +171,30 @@ const SnippetList = ({ searchInput }: searchInpt) => {
                 {snippet.dateCreated}
               </td>
               <td className="px-1 text-sm text-center border border-gray-200">
-                <button
-                  onClick={() => handleEdit(snippet.id)}
-                  className=" text-yellow-800 px-1.5 rounded text-lg cursor-pointer"
-                >
-                  <FaEdit />
-                </button>
-                <button
-                  onClick={() => handleDelete(snippet.id)}
-                  className=" text-red-800 px-1.5 rounded text-lg cursor-pointer"
-                >
-                  <MdDelete />
-                </button>
-                <button
-                  onClick={() => handlePin(snippet.id)}
-                  className=" text-green-800 px-1.5 rounded text-lg cursor-pointer"
-                >
-                  <TiPin />
-                </button>
+                <TooltipWrapper title="Pin Snippet" arrow>
+                  <button
+                    onClick={() => handlePin(snippet.id)}
+                    className="text-black-800 px-1.5 rounded text-lg cursor-pointer"
+                  >
+                    <CiStar />
+                  </button>
+                </TooltipWrapper>
+                <TooltipWrapper title="Edit Snippet" arrow>
+                  <button
+                    onClick={() => handleEdit(snippet.id)}
+                    className=" text-yellow-800 px-1.5 rounded text-lg cursor-pointer"
+                  >
+                    <FaEdit />
+                  </button>
+                </TooltipWrapper>
+                <TooltipWrapper title="Delete Snippet" arrow>
+                  <button
+                    onClick={() => handleDelete(snippet.id)}
+                    className=" text-red-800 px-1.5 rounded text-lg cursor-pointer"
+                  >
+                    <MdDelete />
+                  </button>
+                </TooltipWrapper>
               </td>
             </tr>
           ))}
