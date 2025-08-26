@@ -9,6 +9,7 @@ import TopBar from "./components/TopBar";
 import Library from "./pages/Library";
 import { ThemeContextProvider } from "./Context/ThemeContext";
 import Toast from "./utils/Toast";
+import Notification from "./components/Notification";
 
 function App() {
   const [isOpen, setIsOpen] = useState(false);
@@ -19,6 +20,7 @@ function App() {
       <div className="flex h-screen" ref={editorRef}>
         <Toast />
         <SideBar isOpen={isOpen} setIsOpen={setIsOpen} editorRef={editorRef} />
+        {/* <Notification /> */}
         <div className="flex-1 flex flex-col rounded-tl-3xl theme-wrapper">
           <TopBar editorRef={editorRef} />
           <Routes>

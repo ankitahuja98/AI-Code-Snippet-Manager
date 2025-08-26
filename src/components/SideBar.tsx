@@ -23,7 +23,7 @@ export default function SideBar({
   const location = useLocation();
 
   return (
-    <div>
+    <div className="flex flex-col">
       <motion.nav
         ref={containerRef}
         initial={false}
@@ -45,6 +45,8 @@ export default function SideBar({
           editorRef={editorRef}
         />
       </motion.nav>
+
+      <div className="text-white text-sm font-bold ml-1.5 mb-5">V 1.0.3</div>
     </div>
   );
 }

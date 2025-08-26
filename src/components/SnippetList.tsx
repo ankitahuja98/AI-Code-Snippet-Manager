@@ -3,11 +3,11 @@ import type { Snippet } from "../types/addSnippet";
 import { FaEdit } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 // import { TiPin } from "react-icons/ti";
-import { CiStar } from "react-icons/ci";
-
+import { FaStar, FaRegStar } from "react-icons/fa";
 import type { TagOptionType } from "./AutocompleteTags";
 import { capitalize, styled } from "@mui/material";
 import TooltipWrapper from "./TooltipWrapper";
+import { useTheme } from "../Context/ThemeContext";
 
 type searchInpt = {
   searchInput: string;
@@ -16,6 +16,10 @@ type searchInpt = {
 const SnippetList = ({ searchInput }: searchInpt) => {
   const [AllSnippets, setAllSnippets] = useState<Snippet[]>([]);
   const [allData, setAllData] = useState<Snippet[]>([]);
+  let { theme } = useTheme();
+
+  console.log("AllSnippets", AllSnippets);
+  console.log("allData", allData);
 
   useEffect(() => {
     const allRaw = JSON.parse(
@@ -64,7 +68,14 @@ const SnippetList = ({ searchInput }: searchInpt) => {
 
   const handleEdit = (id: number | string) => {};
 
-  const handlePin = (id: number | string) => {};
+  const handlePin = (id: number | string) => {
+    let filterData = allData.map((val) =>
+      val.id === id ? { ...val, isFav: !val.isFav } : val
+    );
+    setAllData(filterData);
+
+    localStorage.setItem("snippets", JSON.stringify(filterData));
+  };
 
   const capitalise = (str: string) => {
     return str.charAt(0).toUpperCase() + str.slice(1);
@@ -122,16 +133,17 @@ const SnippetList = ({ searchInput }: searchInpt) => {
   };
 
   const useStyle = {
-    TableHeader:
-      "px-4 py-2 text-left text-md font-bold text-gray-700 border border-gray-200",
+    TableHeader: "px-4 py-2 text-left text-md font-bold border border-gray-200",
 
-    tableBody: "px-2.5 py-2.5 text-sm text-gray-800 border border-gray-200",
+    tableBody: "px-2.5 py-2.5 text-sm border border-gray-200",
   };
 
   return (
     <div className="overflow-x-auto border border-gray-200">
       <table className="min-w-full border border-gray-200 rounded-md shadow-sm overflow-hidden">
-        <thead className="bg-gray-100">
+        <thead
+          className={`${theme === "light" ? "bg-gray-100" : "text-white"} `}
+        >
           <tr>
             <th className={`${useStyle.TableHeader} w-[10%]`}>Title</th>
             <th className={`${useStyle.TableHeader} w-[10%]`}>Language</th>
@@ -142,9 +154,14 @@ const SnippetList = ({ searchInput }: searchInpt) => {
             <th className={`${useStyle.TableHeader} w-[10%]`}>Actions</th>
           </tr>
         </thead>
-        <tbody className="bg-white">
+        <tbody
+          className={`${theme === "light" ? "bg-white" : "text-gray-200"} `}
+        >
           {AllSnippets.map((snippet) => (
-            <tr key={snippet.id} className="hover:bg-gray-50 transition-colors">
+            <tr
+              key={snippet.id}
+              className={`${theme === "light" ? "hover:bg-gray-100 " : "hover:bg-gray-900 "} transition-colors`}
+            >
               <td className={useStyle.tableBody}>{snippet.title}</td>
               <td className={useStyle.tableBody}>
                 {capitalise(snippet.language)}
@@ -176,7 +193,11 @@ const SnippetList = ({ searchInput }: searchInpt) => {
                     onClick={() => handlePin(snippet.id)}
                     className="text-black-800 px-1.5 rounded text-lg cursor-pointer"
                   >
-                    <CiStar />
+                    {!snippet.isFav ? (
+                      <FaRegStar />
+                    ) : (
+                      <FaStar style={{ color: "#f4d35e" }} />
+                    )}
                   </button>
                 </TooltipWrapper>
                 <TooltipWrapper title="Edit Snippet" arrow>

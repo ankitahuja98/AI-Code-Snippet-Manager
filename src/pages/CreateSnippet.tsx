@@ -47,6 +47,7 @@ const CreateSnippet = () => {
     dateCreated: getFormattedDate(),
     AIInsights: "",
     optimiseCode: "",
+    isFav: false,
     tags: [],
     optimisationRequired: false,
   });
@@ -231,7 +232,36 @@ const CreateSnippet = () => {
           }
           variant="outlined"
           size="small"
-          sx={{ width: "100%", marginBottom: "1.5rem" }}
+          sx={{
+            width: "100%",
+            marginBottom: "1.5rem",
+
+            // Input text color
+            "& .MuiInputBase-input": {
+              color: theme === "light" ? "#374151" : "#ffffff", // gray-700 / white
+            },
+
+            // Label color
+            "& .MuiInputLabel-root": {
+              color: theme === "light" ? "#6B7280" : "#ffffff", // gray-500 / white
+            },
+            "& .MuiInputLabel-root.Mui-focused": {
+              color: theme === "light" ? "#3b82f6" : "#f4d35e", // blue-500 / yellow
+            },
+
+            // Border color
+            "& .MuiOutlinedInput-root": {
+              "& fieldset": {
+                borderColor: theme === "light" ? "#9CA3AF" : "#ffffff", // gray-400 / white
+              },
+              "&:hover fieldset": {
+                borderColor: theme === "light" ? "#3b82f6" : "#f4d35e", // hover border
+              },
+              "&.Mui-focused fieldset": {
+                borderColor: theme === "light" ? "#3b82f6" : "#f4d35e", // focused border
+              },
+            },
+          }}
         />
 
         <div
@@ -371,7 +401,36 @@ const CreateSnippet = () => {
               value={snippet.AIInsights}
               onChange={(e) => updateSnippet("AIInsights", e.target.value)}
               placeholder="AI-generated summary and suggestions will appear here…"
-              sx={{ width: "100%", marginBottom: "1.5rem" }}
+              sx={{
+                width: "100%",
+                marginBottom: "1.5rem",
+
+                // Input text color
+                "& .MuiInputBase-input": {
+                  color: theme === "light" ? "#374151" : "#ffffff", // gray-700 / white
+                },
+
+                // Label color
+                "& .MuiInputLabel-root": {
+                  color: theme === "light" ? "#6B7280" : "#ffffff", // gray-500 / white
+                },
+                "& .MuiInputLabel-root.Mui-focused": {
+                  color: theme === "light" ? "#3b82f6" : "#f4d35e", // blue-500 / yellow
+                },
+
+                // Border color
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": {
+                    borderColor: theme === "light" ? "#9CA3AF" : "#ffffff", // gray-400 / white
+                  },
+                  "&:hover fieldset": {
+                    borderColor: theme === "light" ? "#3b82f6" : "#f4d35e", // hover border
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: theme === "light" ? "#3b82f6" : "#f4d35e", // focused border
+                  },
+                },
+              }}
             />
 
             <div

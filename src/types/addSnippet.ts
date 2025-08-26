@@ -11,6 +11,7 @@ export type Snippet = {
   dateCreated: string;
   AIInsights: string;
   optimiseCode: string;
+  isFav: boolean;
   tags: Tag[];
   optimisationRequired: boolean;
 };

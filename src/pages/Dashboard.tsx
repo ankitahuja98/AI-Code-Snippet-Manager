@@ -36,7 +36,24 @@ const Dashboard = () => {
     new Set(snippets.map((val) => val.language))
   );
 
-  console.log(langUsed);
+  // Top languages
+  const languageCounts: { [lang: string]: number } = {};
+  snippets.forEach((snippet) => {
+    const lang = snippet.language || "other";
+    languageCounts[lang] = (languageCounts[lang] || 0) + 1;
+  });
+
+  // Pie data for language distribution
+  const pieChartData = Object.entries(languageCounts).map(([lang, value]) => ({
+    label: lang,
+    value,
+  }));
+
+  const favSnippets = snippets.filter((val) => val.isFav);
+
+  // Simple line chart mock for demo
+  const timeLabels = ["1", "2", "3", "4", "5", "6", "7", "8"];
+  const timeSeries = [2, 2, 3, 4, 3, 4, 5, 6];
 
   return (
     <main
@@ -77,6 +94,7 @@ const Dashboard = () => {
           </Button>
         </div>
       </div>
+
       {/* Cards */}
       <div className="firstSection grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-7">
         <div className="border rounded-lg px-4 py-3 min-w-[140px]">
@@ -86,7 +104,7 @@ const Dashboard = () => {
             Total Snippets
           </div>
           <div className="text-2xl sm:text-3xl font-semibold">
-            {snippets.length}
+            {snippets?.length || 0}
           </div>
         </div>
         <div className="border rounded-lg px-4 py-3 min-w-[140px]">
@@ -95,7 +113,9 @@ const Dashboard = () => {
           >
             Favourite Snippets
           </div>
-          <div className="text-2xl sm:text-3xl font-semibold"></div>
+          <div className="text-2xl sm:text-3xl font-semibold">
+            {favSnippets?.length || 0}
+          </div>
         </div>
         <div className=" border rounded-lg px-4 py-3 min-w-[140px]">
           <div
@@ -128,12 +148,12 @@ const Dashboard = () => {
           </div>
           <div className="flex gap-2 pt-1 flex-wrap">
             {langUsed.length === 0 ? (
-              <span className="text-gray-400 text-sm">No languages</span>
+              <span className="text-sm">No languages</span>
             ) : (
               langUsed.map((lang) => (
                 <span
                   key={lang}
-                  className="px-3 py-1 bg-gray-100 rounded-md font-medium text-gray-700 text-sm"
+                  className="px-3 py-1  rounded-md font-medium text-sm"
                 >
                   {capitalize(lang)}
                 </span>
@@ -143,39 +163,165 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Charts */}
+      {/* Charts Row - Responsive */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-7">
         {/* Pie Chart */}
         <div className=" border rounded-lg p-4 flex flex-col">
           <div className="font-semibold mb-3">Language Distribution</div>
-
-          <div className="flex flex-col md:flex-row items-center">
-            <PieChart
-              series={[
-                {
-                  data: [],
-                  innerRadius: 45,
-                  outerRadius: 80,
-                  paddingAngle: 4,
-                  cornerRadius: 6,
-                },
-              ]}
-              width={210}
-              height={210}
-            />
-          </div>
+          {pieChartData.length > 0 ? (
+            <div className="flex flex-col md:flex-row items-center">
+              <PieChart
+                series={[
+                  {
+                    data: pieChartData,
+                    innerRadius: 45,
+                    outerRadius: 80,
+                    paddingAngle: 4,
+                    cornerRadius: 6,
+                    arcLabel: (item) => `${item.value}`, // shows count
+                    arcLabelMinAngle: 10, // only show labels if slice is big enough
+                  },
+                ]}
+                sx={{
+                  // arc labels (inside the pie slices)
+                  "& .MuiChartsArcLabel-root": {
+                    fill: theme === "light" ? "#6B7280" : "#ffffff",
+                    fontWeight: 600,
+                    fontSize: "15px", // increase font size
+                    textTransform: "capitalize", // first char uppercase
+                  },
+                  // legend labels (outside the pie chart)
+                  "& .MuiChartsLegend-root": {
+                    color: theme === "light" ? "#6B7280" : "#ffffff",
+                    fontWeight: 500,
+                    fontSize: "15px", // increase font size
+                    textTransform: "capitalize", // first char uppercase
+                  },
+                }}
+                width={210}
+                height={210}
+              />
+            </div>
+          ) : (
+            <span className=" text-sm">No data</span>
+          )}
         </div>
         {/* Line Chart */}
         <div className=" border rounded-lg p-4 flex flex-col">
           <div className="font-semibold mb-3">Snippets Over Time</div>
           <div className="overflow-x-auto">
             <LineChart
-              xAxis={[{ data: [] }]}
-              series={[{ data: [], showMark: false, area: false }]}
+              xAxis={[
+                {
+                  data: timeLabels,
+                  label: "time", // axis label text
+                },
+              ]}
+              series={[
+                {
+                  data: timeSeries,
+                  showMark: false,
+                  area: false,
+                  label: "visits", // legend label
+                  color: theme === "light" ? "#3b82f6" : "#f4d35e", // 👈 dynamic line color
+                },
+              ]}
+              sx={{
+                // axis labels (x & y)
+                "& .MuiChartsAxis-label": {
+                  fill: theme === "light" ? "#6B7280" : "#ffffff",
+                  fontWeight: 600,
+                  fontSize: "14px",
+                  textTransform: "capitalize",
+                },
+                // tick labels (axis values)
+                "& .MuiChartsAxis-tickLabel": {
+                  fill: theme === "light" ? "#6B7280" : "#ffffff",
+                  fontSize: "13px",
+                },
+                // legend text
+                "& .MuiChartsLegend-root": {
+                  color: theme === "light" ? "#6B7280" : "#ffffff",
+                  fontWeight: 500,
+                  fontSize: "14px",
+                  textTransform: "capitalize",
+                },
+                // 👇 axis line (the black line you mentioned)
+                "& .MuiChartsAxis-line": {
+                  stroke: theme === "light" ? "#6B7280" : "#ffffff",
+                },
+              }}
               width={320}
               height={200}
             />
           </div>
+        </div>
+      </div>
+
+      {/* Responsive, Scrollable Table */}
+      <div className="mt-7">
+        <div className="text-xl font-semibold mb-2">Favourite Snippets</div>
+        <div className=" border rounded-lg overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200 text-sm">
+            <thead>
+              <tr>
+                <th className="px-4 py-2 text-left font-medium">Title</th>
+                <th className="px-4 py-2 text-left font-medium">Language</th>
+                <th className="px-4 py-2 text-left font-medium">
+                  Date Created
+                </th>
+                <th className="px-4 py-2 text-left font-medium">Tags</th>
+                <th className="px-4 py-2 text-left font-medium"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {favSnippets.length === 0 && (
+                <tr>
+                  <td
+                    className="px-4 py-4 text-center text-gray-400"
+                    colSpan={5}
+                  >
+                    No snippets found
+                  </td>
+                </tr>
+              )}
+              {favSnippets.map((s, idx) => (
+                <tr
+                  key={s.id || idx}
+                  // className={idx % 2 === 0 ? "bg-gray-50" : ""}
+                >
+                  <td className="px-4 py-2">{s.title}</td>
+                  <td className="px-4 py-2 capitalize">{s.language}</td>
+                  <td className="px-4 py-2">{s.dateCreated}</td>
+                  <td className="px-4 py-2">
+                    <div className="flex gap-1 flex-wrap">
+                      {(s.tags || []).length === 0 ? (
+                        <span className="text-gray-400 text-xs">No tags</span>
+                      ) : (
+                        s.tags.map((tag) => (
+                          <span
+                            key={tag.id}
+                            className="px-2 py-1 bg-gray-100 rounded text-gray-700 text-xs"
+                          >
+                            {tag.name}
+                          </span>
+                        ))
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-4 py-2">
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      sx={{ textTransform: "none" }}
+                    >
+                      Edit
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </main>
