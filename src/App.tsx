@@ -10,27 +10,41 @@ import Library from "./pages/Library";
 import { ThemeContextProvider } from "./Context/ThemeContext";
 import Toast from "./utils/Toast";
 import Notification from "./components/Notification";
+import { EditSnippetProvider } from "./Context/EditSnippetContext";
+import ViewSnippet from "./pages/ViewSnippet";
 
 function App() {
   const [isOpen, setIsOpen] = useState(false);
+  const [NotificationIsOpen, setNotificationIsOpen] = useState(false);
   const editorRef = useRef<HTMLDivElement>(null);
 
   return (
     <ThemeContextProvider>
-      <div className="flex h-screen" ref={editorRef}>
-        <Toast />
-        <SideBar isOpen={isOpen} setIsOpen={setIsOpen} editorRef={editorRef} />
-        {/* <Notification /> */}
-        <div className="flex-1 flex flex-col rounded-tl-3xl theme-wrapper">
-          <TopBar editorRef={editorRef} />
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/addSnippet" element={<CreateSnippet />} />
-            <Route path="/library" element={<Library />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+      <EditSnippetProvider>
+        <div className="flex h-screen" ref={editorRef}>
+          <Toast />
+          <SideBar
+            isOpen={isOpen}
+            setIsOpen={setIsOpen}
+            editorRef={editorRef}
+          />
+          <Notification NotificationIsOpen={NotificationIsOpen} />
+          <div className="flex-1 flex flex-col rounded-tl-3xl theme-wrapper">
+            <TopBar
+              NotificationIsOpen={NotificationIsOpen}
+              setNotificationIsOpen={setNotificationIsOpen}
+              editorRef={editorRef}
+            />
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/addSnippet" element={<CreateSnippet />} />
+              <Route path="/library" element={<Library />} />
+              <Route path="/viewSnippet" element={<ViewSnippet />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </div>
         </div>
-      </div>
+      </EditSnippetProvider>
     </ThemeContextProvider>
   );
 }

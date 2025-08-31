@@ -32,6 +32,7 @@ import AutocompleteTags, {
 } from "../components/AutocompleteTags";
 import { Typography } from "@mui/material";
 import { useTheme } from "../Context/ThemeContext";
+import { useSnippetContext } from "../Context/EditSnippetContext";
 import { getFormattedDate } from "../utils/getFormattedDate";
 import { useNavigate } from "react-router-dom";
 
@@ -51,6 +52,8 @@ const CreateSnippet = () => {
     tags: [],
     optimisationRequired: false,
   });
+
+  const { snippetToEdit, setSnippetToEdit } = useSnippetContext();
 
   const [AllTags, setAllTags] = useState<TagOptionType[]>([]);
   const [isUserCodeFullscreen, setisUserCodeFullscreen] = useState(false);
@@ -211,16 +214,27 @@ const CreateSnippet = () => {
       localStorage.setItem("snippets", JSON.stringify(saved));
       showToast("Code snippet is saved!", "success");
     } catch (error) {
-      showToast("Code snippet is saved!", "success");
+      showToast("Code snippet is not saved!", "error");
+    } finally {
+      navigate("/library");
+      setSnippetToEdit(null);
     }
   };
+
+  useEffect(() => {
+    if (snippetToEdit) {
+      setSnippet(snippetToEdit);
+    }
+  }, [snippetToEdit]);
 
   return (
     <>
       {loading && <LoadingSpinner />}
-      <main className="flex-1 p-6 pt-3  overflow-y-auto">
+      <main className="flex-1 p-6 pt-3 overflow-y-auto">
         <div className="flex justify-between items-center mb-5">
-          <h2 className="text-2xl font-semibold">Add Snippet</h2>
+          <h2 className="text-2xl font-semibold">
+            {snippetToEdit ? "Edit Snippet" : "Add Snippet"}
+          </h2>
         </div>
         <TextField
           id="title"
@@ -267,6 +281,7 @@ const CreateSnippet = () => {
         <div
           ref={userCodeFullScreenRef}
           className={`relative border rounded-lg shadow`}
+          style={{ width: "91vw" }}
         >
           <div className="flex justify-between items-center pb-2.5 pt-3.5 px-5 bg-zinc-900 text-white rounded-t-lg">
             <Box>
@@ -362,6 +377,7 @@ const CreateSnippet = () => {
           </div>
           <CodeMirror
             value={snippet.code}
+            className="cm-wrapper"
             height={isUserCodeFullscreen ? "100vh" : "350px"}
             theme={theme === "dark" ? oneDark : githubLight}
             extensions={[
@@ -373,8 +389,8 @@ const CreateSnippet = () => {
           />
         </div>
 
-        {showAIFields && (
-          <>
+        {(showAIFields || snippetToEdit) && (
+          <div style={{ width: "91vw" }}>
             <Box sx={{ width: "100%", margin: "1.5rem 0rem", display: "flex" }}>
               <OptimiseCodeSwitch
                 checked={snippet.optimisationRequired}
@@ -469,6 +485,7 @@ const CreateSnippet = () => {
               </div>
               <CodeMirror
                 value={snippet.optimiseCode}
+                className="cm-wrapper"
                 height={isOptimiseCodeFullscreen ? "100vh" : "350px"}
                 theme={theme === "dark" ? oneDark : githubLight}
                 extensions={[
@@ -481,7 +498,7 @@ const CreateSnippet = () => {
                 onChange={(value) => updateSnippet("optimiseCode", value)}
               />
             </div>
-          </>
+          </div>
         )}
 
         <Box sx={{ width: "100%", margin: "1.5rem 0rem" }}>
@@ -496,11 +513,13 @@ const CreateSnippet = () => {
             <span
               className={`relative z-10 ${!validInput ? "text-gray-300 " : "text-white font-bold "}`}
             >
-              {!showAIFields ? "✨ Enhance with AI" : "✨ Regenerate with AI"}
+              {!showAIFields && !snippetToEdit
+                ? "✨ Enhance with AI"
+                : "✨ Regenerate with AI"}
             </span>
             <span className="absolute inset-0 bg-white opacity-10 rounded-xl pointer-events-none"></span>
           </Button>
-          {showAIFields && (
+          {(showAIFields || snippetToEdit) && (
             <Button
               type="button"
               variant="contained"

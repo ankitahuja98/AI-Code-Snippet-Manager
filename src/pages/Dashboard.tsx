@@ -315,7 +315,7 @@ const Dashboard = () => {
                       size="small"
                       sx={{ textTransform: "none" }}
                     >
-                      Edit
+                      View
                     </Button>
                   </td>
                 </tr>

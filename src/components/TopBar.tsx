@@ -1,5 +1,5 @@
 import NotificationsIcon from "@mui/icons-material/Notifications";
-// import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
+import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import FullscreenIcon from "@mui/icons-material/Fullscreen";
@@ -34,9 +34,13 @@ const useStyle = {
 };
 
 const TopBar = ({
+  NotificationIsOpen,
+  setNotificationIsOpen,
   editorRef,
 }: {
+  NotificationIsOpen: boolean;
   editorRef: RefObject<HTMLDivElement | null>;
+  setNotificationIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
   const [isFullscreen, setIsFullscreen] = useState(false);
 
@@ -65,6 +69,10 @@ const TopBar = ({
       document.removeEventListener("fullscreenchange", handleFullscreenChange);
     };
   }, []);
+
+  const handleNotification = () => {
+    setNotificationIsOpen((prev) => !prev);
+  };
   return (
     <div style={useStyle.barStyle}>
       <div>
@@ -79,8 +87,12 @@ const TopBar = ({
               container: editorRef.current,
             }}
           >
-            <Button>
-              <NotificationsIcon style={useStyle.iconStyle} />
+            <Button onClick={handleNotification}>
+              {!NotificationIsOpen ? (
+                <NotificationsIcon style={useStyle.iconStyle} />
+              ) : (
+                <NotificationsActiveIcon style={useStyle.iconStyle} />
+              )}
             </Button>
           </TooltipWrapper>
           <TooltipWrapper

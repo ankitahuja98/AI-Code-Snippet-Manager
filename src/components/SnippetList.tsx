@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import type { Snippet } from "../types/addSnippet";
-import { FaEdit } from "react-icons/fa";
+import { FaEdit, FaEye } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
-// import { TiPin } from "react-icons/ti";
 import { FaStar, FaRegStar } from "react-icons/fa";
 import type { TagOptionType } from "./AutocompleteTags";
 import { capitalize, styled } from "@mui/material";
 import TooltipWrapper from "./TooltipWrapper";
 import { useTheme } from "../Context/ThemeContext";
+import { useNavigate } from "react-router-dom";
+import { useSnippetContext } from "../Context/EditSnippetContext";
 
 type searchInpt = {
   searchInput: string;
@@ -17,9 +18,12 @@ const SnippetList = ({ searchInput }: searchInpt) => {
   const [AllSnippets, setAllSnippets] = useState<Snippet[]>([]);
   const [allData, setAllData] = useState<Snippet[]>([]);
   let { theme } = useTheme();
+  const { setSnippetToEdit } = useSnippetContext();
 
   console.log("AllSnippets", AllSnippets);
   console.log("allData", allData);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const allRaw = JSON.parse(
@@ -66,19 +70,23 @@ const SnippetList = ({ searchInput }: searchInpt) => {
     localStorage.setItem("snippets", JSON.stringify(filterData));
   };
 
-  const handleEdit = (id: number | string) => {};
+  const handleEdit = (snippet: Snippet) => {
+    setSnippetToEdit(snippet);
+    navigate("/addSnippet");
+  };
 
-  const handlePin = (id: number | string) => {
+  const handleView = (snippet: Snippet) => {
+    setSnippetToEdit(snippet);
+    navigate("/viewSnippet");
+  };
+
+  const handleFav = (id: number | string) => {
     let filterData = allData.map((val) =>
       val.id === id ? { ...val, isFav: !val.isFav } : val
     );
     setAllData(filterData);
 
     localStorage.setItem("snippets", JSON.stringify(filterData));
-  };
-
-  const capitalise = (str: string) => {
-    return str.charAt(0).toUpperCase() + str.slice(1);
   };
 
   const StyledTag = styled("div", {
@@ -149,9 +157,9 @@ const SnippetList = ({ searchInput }: searchInpt) => {
             <th className={`${useStyle.TableHeader} w-[10%]`}>Language</th>
             <th className={`${useStyle.TableHeader} w-[40%]`}>AI Insights</th>
             <th className={`${useStyle.TableHeader} w-[15%]`}>Tags</th>
-            <th className={`${useStyle.TableHeader} w-[3%]`}>Optimised</th>
+            {/* <th className={`${useStyle.TableHeader} w-[3%]`}>Optimised</th> */}
             <th className={`${useStyle.TableHeader} w-[12%]`}>Created On</th>
-            <th className={`${useStyle.TableHeader} w-[10%]`}>Actions</th>
+            <th className={`${useStyle.TableHeader} w-[13%]`}>Actions</th>
           </tr>
         </thead>
         <tbody
@@ -162,9 +170,11 @@ const SnippetList = ({ searchInput }: searchInpt) => {
               key={snippet.id}
               className={`${theme === "light" ? "hover:bg-gray-100 " : "hover:bg-gray-900 "} transition-colors`}
             >
-              <td className={useStyle.tableBody}>{snippet.title}</td>
               <td className={useStyle.tableBody}>
-                {capitalise(snippet.language)}
+                {capitalize(snippet.title)}
+              </td>
+              <td className={useStyle.tableBody}>
+                {capitalize(snippet.language)}
               </td>
               <td className={useStyle.tableBody}>
                 <div className="line-clamp-2">{snippet.AIInsights}</div>
@@ -181,41 +191,55 @@ const SnippetList = ({ searchInput }: searchInpt) => {
                   })}
                 </div>
               </td>
-              <td className={`${useStyle.tableBody} text-center`}>
+              {/* <td className={`${useStyle.tableBody} text-center`}>
                 {snippet.optimisationRequired ? "No" : "Yes"}
-              </td>
+              </td> */}
               <td className={`${useStyle.tableBody} text-center`}>
                 {snippet.dateCreated}
               </td>
               <td className="px-1 text-sm text-center border border-gray-200">
-                <TooltipWrapper title="Pin Snippet" arrow>
-                  <button
-                    onClick={() => handlePin(snippet.id)}
-                    className="text-black-800 px-1.5 rounded text-lg cursor-pointer"
+                <span className="flex justify-around">
+                  <TooltipWrapper
+                    title={`${snippet.isFav ? "Unmark as favourite" : "Mark as favourite"}`}
+                    arrow
                   >
-                    {!snippet.isFav ? (
-                      <FaRegStar />
-                    ) : (
-                      <FaStar style={{ color: "#f4d35e" }} />
-                    )}
-                  </button>
-                </TooltipWrapper>
-                <TooltipWrapper title="Edit Snippet" arrow>
-                  <button
-                    onClick={() => handleEdit(snippet.id)}
-                    className=" text-yellow-800 px-1.5 rounded text-lg cursor-pointer"
-                  >
-                    <FaEdit />
-                  </button>
-                </TooltipWrapper>
-                <TooltipWrapper title="Delete Snippet" arrow>
-                  <button
-                    onClick={() => handleDelete(snippet.id)}
-                    className=" text-red-800 px-1.5 rounded text-lg cursor-pointer"
-                  >
-                    <MdDelete />
-                  </button>
-                </TooltipWrapper>
+                    <button
+                      onClick={() => handleFav(snippet.id)}
+                      className="text-black-800 px-1.5 rounded text-lg cursor-pointer"
+                    >
+                      {!snippet.isFav ? (
+                        <FaRegStar />
+                      ) : (
+                        <FaStar style={{ color: "#f4d35e" }} />
+                      )}
+                    </button>
+                  </TooltipWrapper>
+                  <TooltipWrapper title="View Snippet" arrow>
+                    <button
+                      onClick={() => handleView(snippet)}
+                      className=" text-yellow-800 px-1.5 rounded text-lg cursor-pointer"
+                    >
+                      <FaEye style={{ color: "#003F88" }} />
+                    </button>
+                  </TooltipWrapper>
+                  <TooltipWrapper title="Edit Snippet" arrow>
+                    <button
+                      onClick={() => handleEdit(snippet)}
+                      className=" text-yellow-800 px-1.5 rounded text-lg cursor-pointer"
+                    >
+                      <FaEdit />
+                    </button>
+                  </TooltipWrapper>
+
+                  <TooltipWrapper title="Delete Snippet" arrow>
+                    <button
+                      onClick={() => handleDelete(snippet.id)}
+                      className=" text-red-800 px-1.5 rounded text-lg cursor-pointer"
+                    >
+                      <MdDelete />
+                    </button>
+                  </TooltipWrapper>
+                </span>
               </td>
             </tr>
           ))}

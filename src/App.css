@@ -37,3 +37,37 @@ body.dark .theme-wrapper {
   background-color: #121212;
   color: white;
 }
+
+/* //////////////////// */
+
+/* Code mirror scroll bar  */
+/* Target CodeMirror's internal scroller */
+.cm-wrapper .cm-scroller {
+  overflow-x: hidden !important; /* hide horizontal scrollbar */
+  scrollbar-width: thin; /* Firefox small scrollbar */
+  scrollbar-color: #a1a1aa transparent; /* Firefox light mode */
+}
+
+/* Chrome / Edge / Safari */
+.cm-wrapper .cm-scroller::-webkit-scrollbar {
+  width: 6px; /* thin vertical */
+  height: 0px; /* hide horizontal */
+}
+
+.cm-wrapper .cm-scroller::-webkit-scrollbar-thumb {
+  background-color: #a1a1aa; /* light mode */
+  border-radius: 6px;
+}
+
+.cm-wrapper .cm-scroller::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Dark mode */
+.dark .cm-wrapper .cm-scroller {
+  scrollbar-color: #52525b transparent;
+}
+
+.dark .cm-wrapper .cm-scroller::-webkit-scrollbar-thumb {
+  background-color: #52525b;
+}
