@@ -71,6 +71,10 @@ export default function ViewSnippet() {
     <main className="flex-1 p-6 pt-3 overflow-y-auto">
       <div className="flex justify-between">
         <p className="font-bold text-xl">
+          <span
+            className="w-1 h-4 inline-block rounded mr-1.5"
+            style={{ backgroundColor: "#003f88" }}
+          ></span>
           {capitalize(snippetToEdit?.title || "")}
         </p>
         <TooltipWrapper
