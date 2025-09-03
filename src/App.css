@@ -71,3 +71,51 @@ body.dark .theme-wrapper {
 .dark .cm-wrapper .cm-scroller::-webkit-scrollbar-thumb {
   background-color: #52525b;
 }
+
+.monaco-diff-shell {
+  height: 60vh; /* tune as you like */
+  border: 1px solid #e6e9ee;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.diff-toolbar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 1rem;
+  margin-bottom: 1px;
+}
+.diff-summary {
+  margin-left: auto;
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.diff-toolbar button:first-child {
+  background-color: #003f88;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  margin-right: 8px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.diff-toolbar button:first-child:hover {
+  background-color: #0c61c3;
+}
+
+/* Second button (Copy) stays unstyled */
+.diff-toolbar button:nth-child(2) {
+  background: none;
+  border: none;
+  color: inherit;
+  padding: 0;
+  margin: 0 8px 0 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}

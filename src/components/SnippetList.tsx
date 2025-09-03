@@ -171,13 +171,13 @@ const SnippetList = ({ searchInput }: searchInpt) => {
               className={`${theme === "light" ? "hover:bg-gray-100 " : "hover:bg-gray-900 "} transition-colors`}
             >
               <td className={useStyle.tableBody}>
-                {capitalize(snippet.title)}
+                <div className="line-clamp-3">{capitalize(snippet.title)}</div>
               </td>
               <td className={useStyle.tableBody}>
                 {capitalize(snippet.language)}
               </td>
               <td className={useStyle.tableBody}>
-                <div className="line-clamp-2">{snippet.AIInsights}</div>
+                <div className="line-clamp-3">{snippet.AIInsights}</div>
               </td>
               <td className={useStyle.tableBody}>
                 <div className="flex flex-wrap gap-1 overflow-hidden">
