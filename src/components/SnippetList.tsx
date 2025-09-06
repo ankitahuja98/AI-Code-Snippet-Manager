@@ -1,26 +1,41 @@
 import { useEffect, useState } from "react";
 import type { Snippet } from "../types/addSnippet";
-import { FaEdit, FaEye } from "react-icons/fa";
+import { FaEdit, FaEye, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import { FaStar, FaRegStar } from "react-icons/fa";
 import type { TagOptionType } from "./AutocompleteTags";
-import { capitalize, styled } from "@mui/material";
+import { Button, capitalize, styled } from "@mui/material";
 import TooltipWrapper from "./TooltipWrapper";
 import { useTheme } from "../Context/ThemeContext";
 import { useNavigate } from "react-router-dom";
 import { useSnippetContext } from "../Context/EditSnippetContext";
+import { showToast } from "../utils/Toast";
 
 type searchInpt = {
   searchInput: string;
 };
 
 const SnippetList = ({ searchInput }: searchInpt) => {
-  const [AllSnippets, setAllSnippets] = useState<Snippet[]>([]);
+  const [snippets, setsnippets] = useState<Snippet[]>([]);
   const [allData, setAllData] = useState<Snippet[]>([]);
   let { theme } = useTheme();
   const { setSnippetToEdit } = useSnippetContext();
+  const [selectedRow, setSelectedRow] = useState<(string | number)[]>([]);
+  const [snippetPerPage, setSnippetPerPage] = useState<number>(5);
+  const [currentPage, setCurrentPage] = useState<number>(1);
 
-  console.log("AllSnippets", AllSnippets);
+  const start = (currentPage - 1) * snippetPerPage;
+  const end = snippetPerPage * currentPage;
+
+  console.log("pages", start, "---", end);
+
+  console.log("snippetPerPage", snippetPerPage);
+
+  const totalPages = Math.ceil(snippets?.length / snippetPerPage) || 0;
+
+  console.log("selectedRow", selectedRow);
+
+  console.log("snippets", snippets);
   console.log("allData", allData);
 
   const navigate = useNavigate();
@@ -39,7 +54,7 @@ const SnippetList = ({ searchInput }: searchInpt) => {
 
   useEffect(() => {
     if (!searchInput) {
-      setAllSnippets(allData);
+      setsnippets(allData);
     } else {
       const SearchLowerInput = searchInput.toLowerCase();
 
@@ -58,7 +73,7 @@ const SnippetList = ({ searchInput }: searchInpt) => {
         );
       });
 
-      setAllSnippets(filterData);
+      setsnippets(filterData);
     }
   }, [searchInput, allData]);
 
@@ -144,117 +159,269 @@ const SnippetList = ({ searchInput }: searchInpt) => {
     TableHeader: "px-4 py-2 text-left text-md font-bold border border-gray-200",
 
     tableBody: "px-2.5 py-2.5 text-sm border border-gray-200",
+
+    TableTopIcons: "text-2xl",
+  };
+
+  const handleCheckBox = (id: string | number) => {
+    setSelectedRow((prev) =>
+      prev.includes(id) ? prev.filter((val) => val !== id) : [...prev, id]
+    );
+  };
+
+  const handleAllCheckbox = () => {
+    if (selectedRow?.length === allData.length) {
+      setSelectedRow([]); //unselect All
+    } else {
+      setSelectedRow(() => allData.map((val) => val.id));
+    }
+  };
+
+  const handleSelectedDelete = () => {
+    const res = allData.filter((val) => !selectedRow.includes(val.id));
+    setAllData(res);
+    localStorage.setItem("snippets", JSON.stringify(res));
+
+    setSelectedRow([]);
+    showToast("Selected snippets deleted successfully", "success");
+  };
+
+  const handleSelectedFav = () => {
+    const res = allData.map((val) =>
+      selectedRow.includes(val.id) ? { ...val, isFav: true } : val
+    );
+    setAllData(res);
+    localStorage.setItem("snippets", JSON.stringify(res));
+    showToast("Selected snippets set as favourite successfully", "success");
+  };
+
+  const handleLeft = () => {
+    currentPage >= totalPages && setCurrentPage((prev) => prev - 1);
+  };
+
+  const handleRight = () => {
+    currentPage < totalPages && setCurrentPage((prev) => prev + 1);
+  };
+
+  const highlightText = (text: string, query: string) => {
+    if (!query) return text;
+
+    const regex = new RegExp(`(${query})`, "gi");
+    const parts = text.split(regex);
+
+    return parts.map((part, index) =>
+      regex.test(part) ? (
+        <mark key={index} className="bg-yellow-300">
+          {part}
+        </mark>
+      ) : (
+        part
+      )
+    );
   };
 
   return (
-    <div className="overflow-x-auto border border-gray-200">
-      <table className="min-w-full border border-gray-200 rounded-md shadow-sm overflow-hidden">
-        <thead
-          className={`${theme === "light" ? "bg-gray-100" : "text-white"} `}
-        >
-          <tr>
-            <th className={`${useStyle.TableHeader} w-[10%]`}>Title</th>
-            <th className={`${useStyle.TableHeader} w-[10%]`}>Language</th>
-            <th className={`${useStyle.TableHeader} w-[40%]`}>AI Insights</th>
-            <th className={`${useStyle.TableHeader} w-[15%]`}>Tags</th>
-            {/* <th className={`${useStyle.TableHeader} w-[3%]`}>Optimised</th> */}
-            <th className={`${useStyle.TableHeader} w-[12%]`}>Created On</th>
-            <th className={`${useStyle.TableHeader} w-[13%]`}>Actions</th>
-          </tr>
-        </thead>
-        <tbody
-          className={`${theme === "light" ? "bg-white" : "text-gray-200"} `}
-        >
-          {AllSnippets.map((snippet) => (
-            <tr
-              key={snippet.id}
-              className={`${theme === "light" ? "hover:bg-gray-100 " : "hover:bg-gray-900 "} transition-colors`}
-            >
-              <td className={useStyle.tableBody}>
-                <div className="line-clamp-3">{capitalize(snippet.title)}</div>
-              </td>
-              <td className={useStyle.tableBody}>
-                {capitalize(snippet.language)}
-              </td>
-              <td className={useStyle.tableBody}>
-                <div className="line-clamp-3">{snippet.AIInsights}</div>
-              </td>
-              <td className={useStyle.tableBody}>
-                <div className="flex flex-wrap gap-1 overflow-hidden">
-                  {snippet.tags.map((tag: any) => {
-                    const bgColor = getColorForTag(tag);
-                    return (
-                      <StyledTag key={tag.id} bgcolor={bgColor}>
-                        <span key={tag.id}>{capitalize(tag.name)}</span>
-                      </StyledTag>
-                    );
-                  })}
-                </div>
-              </td>
-              {/* <td className={`${useStyle.tableBody} text-center`}>
+    <div>
+      {selectedRow.length > 1 && (
+        <>
+          <TooltipWrapper
+            title="Delete selected snippets"
+            placement="bottom"
+            className="cursor-pointer ml-3"
+          >
+            <MdDelete
+              className={useStyle.TableTopIcons}
+              onClick={handleSelectedDelete}
+            />
+          </TooltipWrapper>
+          <TooltipWrapper
+            title="Mark selected snippets as favourite"
+            placement="bottom"
+            className="cursor-pointer ml-5"
+          >
+            <FaStar
+              className={useStyle.TableTopIcons}
+              onClick={handleSelectedFav}
+            />
+          </TooltipWrapper>
+        </>
+      )}
+
+      <div className="overflow-x-auto border border-gray-200 ">
+        <table className="min-w-full border border-gray-200 rounded-md shadow-sm overflow-hidden">
+          <thead
+            className={`${theme === "light" ? "bg-gray-100" : "text-white"} `}
+          >
+            <tr>
+              <th className={`${useStyle.tableBody} text-center w-[4%]`}>
+                <input
+                  type="checkbox"
+                  checked={selectedRow?.length === allData.length}
+                  onChange={handleAllCheckbox}
+                />
+              </th>
+              <th className={`${useStyle.TableHeader} w-[10%] min-w-[120px]`}>
+                Title
+              </th>
+              <th className={`${useStyle.TableHeader} w-[10%] min-w-[120px]`}>
+                Language
+              </th>
+              <th className={`${useStyle.TableHeader} w-[40%] min-w-[250px]`}>
+                AI Insights
+              </th>
+              <th className={`${useStyle.TableHeader} w-[12%] min-w-[150px]`}>
+                Tags
+              </th>
+              {/* <th className={`${useStyle.TableHeader} w-[3%]`}>Optimised</th> */}
+              <th className={`${useStyle.TableHeader} w-[12%] min-w-[150px]`}>
+                Created On
+              </th>
+              <th className={`${useStyle.TableHeader} w-[13%] min-w-[160px]`}>
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody
+            className={`${theme === "light" ? "bg-white" : "text-gray-200"} `}
+          >
+            {snippets.slice(start, end).map((snippet) => {
+              const {
+                id,
+                title,
+                language,
+                AIInsights,
+                tags,
+                dateCreated,
+                isFav,
+              } = snippet;
+              return (
+                <tr
+                  key={id}
+                  className={`${theme === "light" ? "hover:bg-gray-100 " : "hover:bg-gray-900 "} transition-colors`}
+                >
+                  <td className={`${useStyle.tableBody} text-center`}>
+                    <input
+                      type="checkbox"
+                      checked={selectedRow.includes(id)}
+                      onChange={() => handleCheckBox(id)}
+                    />
+                  </td>
+                  <td className={useStyle.tableBody}>
+                    <div className="line-clamp-3">
+                      {highlightText(capitalize(title), searchInput)}
+                    </div>
+                  </td>
+                  <td className={useStyle.tableBody}>
+                    {highlightText(capitalize(language), searchInput)}
+                  </td>
+                  <td className={useStyle.tableBody}>
+                    <div className="line-clamp-3">
+                      {highlightText(capitalize(AIInsights), searchInput)}
+                    </div>
+                  </td>
+                  <td className={useStyle.tableBody}>
+                    <div className="flex flex-wrap gap-1 overflow-hidden">
+                      {tags.map((tag: any) => {
+                        const bgColor = getColorForTag(tag);
+                        return (
+                          <StyledTag key={tag.id} bgcolor={bgColor}>
+                            <span key={tag.id}>
+                              {highlightText(capitalize(tag.name), searchInput)}
+                            </span>
+                          </StyledTag>
+                        );
+                      })}
+                    </div>
+                  </td>
+                  {/* <td className={`${useStyle.tableBody} text-center`}>
                 {snippet.optimisationRequired ? "No" : "Yes"}
               </td> */}
-              <td className={`${useStyle.tableBody} text-center`}>
-                {snippet.dateCreated}
-              </td>
-              <td className="px-1 text-sm text-center border border-gray-200">
-                <span className="flex justify-around">
-                  <TooltipWrapper
-                    title={`${snippet.isFav ? "Unmark as favourite" : "Mark as favourite"}`}
-                    arrow
-                  >
-                    <button
-                      onClick={() => handleFav(snippet.id)}
-                      className="text-black-800 px-1.5 rounded text-lg cursor-pointer"
-                    >
-                      {!snippet.isFav ? (
-                        <FaRegStar />
-                      ) : (
-                        <FaStar style={{ color: "#f4d35e" }} />
-                      )}
-                    </button>
-                  </TooltipWrapper>
-                  <TooltipWrapper title="View Snippet" arrow>
-                    <button
-                      onClick={() => handleView(snippet)}
-                      className=" text-yellow-800 px-1.5 rounded text-lg cursor-pointer"
-                    >
-                      <FaEye style={{ color: "#003F88" }} />
-                    </button>
-                  </TooltipWrapper>
-                  <TooltipWrapper title="Edit Snippet" arrow>
-                    <button
-                      onClick={() => handleEdit(snippet)}
-                      className=" text-yellow-800 px-1.5 rounded text-lg cursor-pointer"
-                    >
-                      <FaEdit />
-                    </button>
-                  </TooltipWrapper>
+                  <td className={`${useStyle.tableBody} text-center`}>
+                    {dateCreated}
+                  </td>
+                  <td className="px-1 text-sm text-center border border-gray-200">
+                    <span className="flex justify-around">
+                      <TooltipWrapper
+                        title={`${isFav ? "Unmark as favourite" : "Mark as favourite"}`}
+                        arrow
+                      >
+                        <button
+                          onClick={() => handleFav(id)}
+                          className="text-black-800 px-1.5 rounded text-lg cursor-pointer"
+                        >
+                          {!isFav ? (
+                            <FaRegStar />
+                          ) : (
+                            <FaStar style={{ color: "#f4d35e" }} />
+                          )}
+                        </button>
+                      </TooltipWrapper>
+                      <TooltipWrapper title="View Snippet" arrow>
+                        <button
+                          onClick={() => handleView(snippet)}
+                          className=" text-yellow-800 px-1.5 rounded text-lg cursor-pointer"
+                        >
+                          <FaEye style={{ color: "#003F88" }} />
+                        </button>
+                      </TooltipWrapper>
+                      <TooltipWrapper title="Edit Snippet" arrow>
+                        <button
+                          onClick={() => handleEdit(snippet)}
+                          className=" text-yellow-800 px-1.5 rounded text-lg cursor-pointer"
+                        >
+                          <FaEdit />
+                        </button>
+                      </TooltipWrapper>
 
-                  <TooltipWrapper title="Delete Snippet" arrow>
-                    <button
-                      onClick={() => handleDelete(snippet.id)}
-                      className=" text-red-800 px-1.5 rounded text-lg cursor-pointer"
-                    >
-                      <MdDelete />
-                    </button>
-                  </TooltipWrapper>
-                </span>
-              </td>
-            </tr>
-          ))}
-          {AllSnippets.length === 0 && (
-            <tr>
-              <td
-                colSpan={6}
-                className="text-center text-gray-500 py-6 border border-gray-200"
-              >
-                No snippets found.
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+                      <TooltipWrapper title="Delete Snippet" arrow>
+                        <button
+                          onClick={() => handleDelete(id)}
+                          className=" text-red-800 px-1.5 rounded text-lg cursor-pointer"
+                        >
+                          <MdDelete />
+                        </button>
+                      </TooltipWrapper>
+                    </span>
+                  </td>
+                </tr>
+              );
+            })}
+            {snippets.length === 0 && (
+              <tr>
+                <td
+                  colSpan={6}
+                  className="text-center text-gray-500 py-6 border border-gray-200"
+                >
+                  No snippets found.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+      {/* Tab;e Page setting */}
+      <div className="float-right py-3 mb-4 flex items-center">
+        <span className="flex items-center mr-10">
+          <p className="mr-3">Snippets per page:</p>
+
+          <select
+            value={snippetPerPage}
+            onChange={(e) => setSnippetPerPage(Number(e.target.value))}
+          >
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="50">50</option>
+          </select>
+        </span>
+        <Button onClick={handleLeft} disabled={currentPage == 1}>
+          <FaChevronLeft />
+        </Button>
+        <span className="font-semibold">{`${currentPage} of ${totalPages}`}</span>
+        <Button onClick={handleRight} disabled={currentPage === totalPages}>
+          <FaChevronRight />
+        </Button>
+      </div>
     </div>
   );
 };

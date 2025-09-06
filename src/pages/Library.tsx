@@ -17,7 +17,7 @@ const Library = () => {
 
   return (
     <main className="flex-1 p-6 overflow-y-auto">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center mb-3">
         <div className="flex justify-center items-center border border-gray-400 py-1 px-3 rounded-2xl">
           <FaSearch style={{ color: "#A3A3A3" }} />
           <input
