@@ -46,7 +46,7 @@ export default function SideBar({
         />
       </motion.nav>
 
-      <div className="text-white text-sm font-bold ml-1.5 mb-5">V 1.0.3</div>
+      <div className="text-white text-sm font-bold ml-1.5 mb-5">V 1.0.4</div>
     </div>
   );
 }
